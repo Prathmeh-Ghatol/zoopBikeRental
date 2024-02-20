@@ -3,6 +3,8 @@ package com.zoopbike.application.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -28,4 +30,15 @@ public class CurrentAddress {
 
     @OneToOne(mappedBy = "currentAddress")
     BikeProviderPartner bikeProviderPartnerForCurrentAddress;
+
+
+    @OneToOne(mappedBy  ="currentAddress")
+    ApplicationUser applicationUser;
+
+    //@OneToMany
+//    Set<ApplicationUserReview>userReviews=new HashSet<>();
+
+
+
+
 }

@@ -11,6 +11,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
+
 public class Permanentaddress {
 
     @Id
@@ -29,4 +31,7 @@ public class Permanentaddress {
 
     @OneToOne(mappedBy = "permanentaddress")
     BikeProviderPartner bikeProviderPartner;
+
+    @OneToOne(mappedBy = "permanentaddress")
+    ApplicationUser applicationUser;
 }
