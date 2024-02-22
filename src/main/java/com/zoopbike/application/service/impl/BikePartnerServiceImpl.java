@@ -27,17 +27,17 @@ import java.util.UUID;
 public class BikePartnerServiceImpl implements BikePartnerService {
     private Map<String,BikeProviderPartner>bikeProviderPartnercache=new HashMap<>();
     @Autowired
-    BikePartnerRepo bikePartnerRepo;
+    private BikePartnerRepo bikePartnerRepo;
     @Autowired
-    ObjectMappingService mappingService;
+    private ObjectMappingService mappingService;
     @Autowired
-    PermentAddressRepo permenetAddressRepo;
+    private PermentAddressRepo permenetAddressRepo;
 
     @Autowired
-    CurrentAddressRepo currentAddressRepo;
+    private CurrentAddressRepo currentAddressRepo;
 
     @Autowired
-    CacheStore cacheStore;
+    private CacheStore cacheStore;
 
     @Override
     public BikeProviderPartnerDto register(BikeProviderPartnerDto bikeProviderPartnerDto) {
@@ -45,12 +45,6 @@ public class BikePartnerServiceImpl implements BikePartnerService {
             throw new BikeProviderPartnerException("bikeprovider already exist with this mail  please login " + bikeProviderPartnerDto.getEmail(),
                     "BikeProviderPartner");
         }
-            BikeProviderPartner bikeProviderPartnerExist=this.bikePartnerRepo.findBikeProviderPartner(bikeProviderPartnerDto.getEmail());
-            if(bikeProviderPartnerExist!=null) {
-
-                throw new BikeProviderPartnerException("bikeprovider already exist with this mail please login" + bikeProviderPartnerDto.getEmail(),
-                        "BikeProviderPartner");
-            }
         BikeProviderPartner bikeProviderPartner = mappingService.pojoToentity(bikeProviderPartnerDto, BikeProviderPartner.class);
         PermenetAddressDto permenetAddressDto = bikeProviderPartnerDto.getPermenetAddressDto();
         Permanentaddress permanentaddress = mappingService.pojoToentity(permenetAddressDto, Permanentaddress.class);
@@ -152,6 +146,7 @@ public class BikePartnerServiceImpl implements BikePartnerService {
                 throw new BikeProviderPartnerException("Bike Provider Partner not found !!",String.valueOf( bikeproviderVenderUUID));
             }
         }
+        System.out.println("********************** " +bikeProviderPartner.getBikeOwner());
         return this.mappingService.entityToPojo(bikeProviderPartner,BikeProviderPartnerDto.class);
     }
 

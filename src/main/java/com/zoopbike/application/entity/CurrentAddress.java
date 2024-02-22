@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Table(name = "CURRENT_ADDRESS")
 public class CurrentAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

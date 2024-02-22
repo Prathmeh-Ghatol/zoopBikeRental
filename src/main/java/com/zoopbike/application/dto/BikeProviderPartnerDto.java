@@ -1,10 +1,12 @@
 package com.zoopbike.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.zoopbike.application.entity.Bike;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -20,7 +22,7 @@ public class BikeProviderPartnerDto {
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$",message = "\"please enter proper email")
     private String email;
     @NotBlank
-    @Pattern(regexp = "^[789]\\d{9}$\n",message = "please enter phone number")
+   // @Pattern(regexp = "^[789]\\d{9}$\n",message = "please enter phone number")
     private String cellNumber;
     @NotBlank
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$", message = "Your password must meet the following criteria to be considered strong:\n" +
@@ -39,4 +41,5 @@ public class BikeProviderPartnerDto {
     private CurrentAddressDto CurrentAddressDto;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Boolean currentAddressSameToPermentAddress;
+
 }

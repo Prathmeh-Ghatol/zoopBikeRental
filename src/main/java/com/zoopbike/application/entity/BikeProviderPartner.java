@@ -1,10 +1,7 @@
 package com.zoopbike.application.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.domain.Range;
 
@@ -18,6 +15,8 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "BIKE_PROVIDER")
+@ToString
 public class BikeProviderPartner {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,18 +39,9 @@ public class BikeProviderPartner {
     @OneToOne(cascade = CascadeType.ALL)
     private CurrentAddress currentAddress;
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "bikeProviderPartner")
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "bikeProviderPartner")
     private Set<Bike> bikeOwner=new HashSet<>();
 
-    private Double currentMeterReading;
-
-    private Integer FreeDriveKm;
-
-    private Double Milage;
-
-    private Double AfterfreeDriveKmChargePerKm;
-
-    private Boolean available;
 
 
 }

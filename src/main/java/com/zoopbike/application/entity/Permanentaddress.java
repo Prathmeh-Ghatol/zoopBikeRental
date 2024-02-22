@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @ToString
-
+@Table(name = "PERMENT_ADDRESS")
 public class Permanentaddress {
 
     @Id
