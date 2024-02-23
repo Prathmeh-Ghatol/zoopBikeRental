@@ -64,8 +64,8 @@ public class ApplicationUserController {
 
     @GetMapping(value = "/get/all")
     ResponseEntity<GenricPage<ApplicationUserDto>> getAllApplicationUser(
-            @RequestParam(value = "pageNo", defaultValue = com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defiultApplicationUserPageNo, required = false) int PageNo,
-            @RequestParam(value = "pageSize", defaultValue = com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defiultApplicationUserPagesize, required = false) int PageSize) {
+            @RequestParam(value = "pageNo", defaultValue = com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defualtApplicationPageNO, required = false) int PageNo,
+            @RequestParam(value = "pageSize", defaultValue = com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defaultApplicationPageSize, required = false) int PageSize) {
         GenricPage<ApplicationUserDto> allUser = this.applicationUserService.getAllUser(PageNo, PageSize);
         return ResponseEntity.status(HttpStatus.OK).body(allUser);
 

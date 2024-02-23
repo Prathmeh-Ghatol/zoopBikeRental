@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 public class zoopBikeRentalApplicationConstant {
 
 
-    public final static String defiultApplicationUserPageNo="0";
-    public final static  String defiultApplicationUserPagesize="5";
+    public final static String defualtApplicationPageNO="0";
+    public final static  String defaultApplicationPageSize="5";
 }

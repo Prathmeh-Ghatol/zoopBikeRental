@@ -2,6 +2,7 @@ package com.zoopbike.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zoopbike.application.entity.BikeProviderPartner;
+import com.zoopbike.application.utils.BikeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -30,5 +31,7 @@ public class BikeReturnDto {
     private Double AfterfreeDriveKmChargePerKm;
     private Boolean available;
     private double pricePerDay;
+    private Double bikeFreeFuel;;
+    private BikeType bikeType;
 
 }

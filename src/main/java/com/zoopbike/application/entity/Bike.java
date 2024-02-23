@@ -1,6 +1,7 @@
 package com.zoopbike.application.entity;
 
 
+import com.zoopbike.application.utils.BikeType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +30,8 @@ public class Bike {
     private Date zoopRegisterDate;
     private String bikeBrand;
     private Date pucValidity;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BIKE_PARTNER_ID")
     private BikeProviderPartner bikeProviderPartner;
     private Boolean under_Maintenance;
     private Double currentMeterReading;
@@ -38,6 +40,8 @@ public class Bike {
     private Double afterfreeDriveKmChargePerKm;
     private Boolean available;
     private Double pricePerDay;
-    private
+    @Enumerated(EnumType.STRING)
+    private BikeType bikeType;
+    private Double bikeFreeFuel;
 
 }

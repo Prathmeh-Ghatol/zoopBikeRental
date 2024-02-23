@@ -2,7 +2,6 @@ package com.zoopbike.application.service;
 
 import com.zoopbike.application.dto.BikeDto;
 import com.zoopbike.application.dto.BikeReturnDto;
-import org.hibernate.sql.Update;
 
 import java.util.UUID;
 
@@ -13,8 +12,9 @@ public interface BikeService {
      public BikeReturnDto updateBike (BikeDto bikeDto , UUID bikeId);
 
 
-     public BikeReturnDto deleteBike (UUID bikeId);
+     public Boolean deleteBike (UUID bikeId);
+     public BikeReturnDto getBikeById(UUID bikeID);
 
 
 
-}
+     }

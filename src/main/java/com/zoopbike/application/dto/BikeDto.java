@@ -1,6 +1,7 @@
 package com.zoopbike.application.dto;
 
 import com.zoopbike.application.entity.BikeProviderPartner;
+import com.zoopbike.application.utils.BikeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
@@ -28,5 +29,8 @@ public class BikeDto {
     private Double afterfreeDriveKmChargePerKm;
     private Boolean available;
     private Double pricePerDay;
+    private BikeType bikeType;
+    private Double bikeFreeFuel;;
+
 
 }

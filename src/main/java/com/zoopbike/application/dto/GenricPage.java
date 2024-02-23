@@ -23,4 +23,6 @@ public class GenricPage <T> {
 
     private Integer totalPage;
 
+    private Long totalElement;
+
 }
