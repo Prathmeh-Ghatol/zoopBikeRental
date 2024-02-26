@@ -53,5 +53,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
 
     }
+    @ExceptionHandler(value = BadBikeException.class)
+    public ResponseEntity<Map<String,String>> BikeException(BadBikeException badBikeException){
+        exceptionMap=new HashMap<>();
+        exceptionMap.put("Message",badBikeException.getMessage());
+        exceptionMap.put("Entity",badBikeException.getEntity());
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
+
+    }  @ExceptionHandler(value = BookingException.class)
+    public ResponseEntity<Map<String,String>> BookingException(BookingException bookingException){
+        exceptionMap=new HashMap<>();
+        exceptionMap.put("Message",bookingException.getMessage());
+        exceptionMap.put("Entity",bookingException.getEntity());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
+
+    }
 }

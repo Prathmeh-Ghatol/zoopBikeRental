@@ -16,7 +16,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "BIKE_PROVIDER")
-@ToString
 public class BikeProviderPartner {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -42,6 +41,7 @@ public class BikeProviderPartner {
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "bikeProviderPartner")
     private Set<Bike> bikeOwner=new HashSet<>();
 
+    private Boolean isAvilable;
 
 
 }

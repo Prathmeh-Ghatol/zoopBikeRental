@@ -1,9 +1,13 @@
 package com.zoopbike.application.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.w3c.dom.DOMStringList;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -30,6 +34,10 @@ public class ApplicationUser {
 
     @OneToOne(cascade = CascadeType.ALL)
     private Permanentaddress permanentaddress;
+
+    @ManyToMany(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY,mappedBy = "applicationUserBikeBook")
+    @JsonManagedReference
+    private List<BikeBooking>Booking;
 
 
 

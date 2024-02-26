@@ -27,15 +27,10 @@ public class DemoApplication implements CommandLineRunner{
 		return new ModelMapper();
 	}
 
-	@Autowired
-	BikeSeImpl bikeSe;
 
 	@Override
 	public void run(String... args) throws Exception {
-		bikeSe.getAllBikeOfBikeVender("sumit@example.com");
 
 	}
-
-
-	}
+}
 

@@ -30,7 +30,7 @@ public class BikeDto {
     private Boolean available;
     private Double pricePerDay;
     private BikeType bikeType;
-    private Double bikeFreeFuel;;
+    private Double bikeFreeFuel;
 
 
 }

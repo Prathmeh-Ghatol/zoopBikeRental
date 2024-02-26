@@ -1,14 +1,15 @@
 package com.zoopbike.application.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.zoopbike.application.utils.BikeType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "BIKE")
 public class Bike {
 
@@ -42,6 +44,9 @@ public class Bike {
     private Double pricePerDay;
     @Enumerated(EnumType.STRING)
     private BikeType bikeType;
-    private Double bikeFreeFuel;
+    private Double bikeFreeFuel;;
+    @ManyToMany(mappedBy ="bikesBookReg",fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<BikeBooking>bikeBookings;
 
 }

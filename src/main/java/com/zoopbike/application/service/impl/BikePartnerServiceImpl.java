@@ -174,10 +174,11 @@ public class BikePartnerServiceImpl implements BikePartnerService {
         bikeProvider.setEmail(bikeProvider.getEmail());
         bikeProvider.setName(bikeProvider.getName());
         bikeProvider.setPassword(bikeProvider.getPassword());
-        CurrentAddress currentAddress= this.mappingService.pojoToentity(bikeProviderPartnerDto.getCurrentAddressDto(), CurrentAddress.class);
-        Permanentaddress permanentaddress = this.mappingService.pojoToentity(bikeProviderPartnerDto.getPermenetAddressDto(), Permanentaddress.class);
-        bikeProvider.setCurrentAddress(currentAddress);
-        bikeProvider.setPermanentaddress(permanentaddress);
+        bikeProvider.setIsAvilable(bikeProviderPartnerDto.getIsAvilable());
+        //CurrentAddress currentAddress= this.mappingService.pojoToentity(bikeProviderPartnerDto.getCurrentAddressDto(), CurrentAddress.class);
+        //Permanentaddress permanentaddress = this.mappingService.pojoToentity(bikeProviderPartnerDto.getPermenetAddressDto(), Permanentaddress.class);
+        //bikeProvider.setCurrentAddress(currentAddress);
+        //bikeProvider.setPermanentaddress(permanentaddress);
         BikeProviderPartner bikeProviderPartnerUpdated=this.bikePartnerRepo.save(bikeProvider);
         return bikeProviderPartnerUpdated;
 

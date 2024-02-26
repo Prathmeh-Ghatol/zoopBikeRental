@@ -63,8 +63,10 @@ public class BikeSeImpl implements BikeService {
         bike.setUnder_Maintenance(false);
         bike.setZoopRegisterDate(new Date());
         bike.setPricePerDay(bikeDto.getPricePerDay());
+        bike.setBikeFreeFuel(bikeDto.getBikeFreeFuel());
         bike.setBikeType(bikeDto.getBikeType());
         Bike bikeSaved = this.bikeRepo.save(bike);
+        System.out.println(bikeSaved);
         cacheStore.bikesCache.put(bikeSaved.getBikeId(), bikeSaved);
         return this.objectMappingService.entityToPojo(bikeSaved, BikeReturnDto.class);
 
@@ -118,22 +120,21 @@ public class BikeSeImpl implements BikeService {
 
     @Transactional
     public BikeReturnDto getBikeById(UUID bikeID) {
+        Bike bike=null;
         if (bikeID != null) {
-            Bike bike = this.cacheStore.bikesCache.get(bikeID);
-            this.objectMappingService.entityToPojo(bike, BikeReturnDto.class);
-        }
-        Optional<Bike> bike = this.bikeRepo.findById(bikeID);
-        if (bike.isEmpty()) {
-            throw new BadBikeException("Bike is not present " + bikeID, "bike");
+            bike=this.cacheStore.bikesCache.get(bikeID);
+            if(bike==null){
+                bike=this.bikeRepo.findById(bikeID).orElseThrow(
+                        ()->new BadBikeException("Bike is not present with this " + bikeID,"BIKE")
+                );
+            }
         }
 
-        BikeReturnDto bikeReturnDto = this.objectMappingService.entityToPojo(bike.get(), BikeReturnDto.class);
-        return bikeReturnDto;
-
-    }
+        return objectMappingService.entityToPojo(bike,BikeReturnDto.class);
+        }
 
     @Transactional
-    public GenricPage<BikeReturnDto> getAllBikeOfBikeVender(String BikeVenderEmail){
+    public GenricPage<BikeReturnDto> getAllBikeOfBikeVender(String BikeVenderEmail,int pageSize,int pageNo){
        BikeProviderPartner bikeProviderPartner= this.bikePartnerRepo.findBikeProviderPartner(BikeVenderEmail);
        if(bikeProviderPartner==null){
            throw new BikeProviderPartnerException("Bike Provider is not avilable with email" + BikeVenderEmail,"Bike Provider Partner");

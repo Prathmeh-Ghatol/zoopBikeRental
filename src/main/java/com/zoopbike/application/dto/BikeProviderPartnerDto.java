@@ -41,5 +41,7 @@ public class BikeProviderPartnerDto {
     private CurrentAddressDto CurrentAddressDto;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Boolean currentAddressSameToPermentAddress;
+    private Boolean isAvilable;
+
 
 }

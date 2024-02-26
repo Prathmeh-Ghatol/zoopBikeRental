@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defaultApplicationPageSize;
+import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defualtApplicationPageNO;
+
 @RestController
 
 @RequestMapping(value = "/bike/service")
@@ -44,8 +47,11 @@ public class BikeController {
         return ResponseEntity.status(HttpStatus.OK).body(bike);
     }
     @GetMapping(value = "/get/all/bikeprovider/{email}")
-    public  ResponseEntity<GenricPage<BikeReturnDto>>getAllBikes(@PathVariable("email")String bikeProviderEmail){
-        GenricPage<BikeReturnDto>bikes =this.bikeService.getAllBikeOfBikeVender(bikeProviderEmail);
+    public  ResponseEntity<GenricPage<BikeReturnDto>>getAllBikes(
+            @RequestParam(value = "pageNo",defaultValue =defualtApplicationPageNO,required = false)int pageNo,
+            @RequestParam(value = "pageSize",defaultValue = defaultApplicationPageSize,required = false) int pageSize,
+            @PathVariable("email")String bikeProviderEmail){
+        GenricPage<BikeReturnDto>bikes =this.bikeService.getAllBikeOfBikeVender(bikeProviderEmail,pageNo,pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(bikes);
     }
 

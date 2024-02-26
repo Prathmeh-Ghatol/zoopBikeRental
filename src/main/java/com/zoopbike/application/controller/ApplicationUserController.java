@@ -4,6 +4,8 @@ package com.zoopbike.application.controller;
 import com.zoopbike.application.dto.ApplicationUserDto;
 import com.zoopbike.application.dto.GenricPage;
 import com.zoopbike.application.entity.ApplicationUser;
+import com.zoopbike.application.entity.BikeBooking;
+import com.zoopbike.application.repo.BikeBookingJpa;
 import com.zoopbike.application.service.ApplicationUserService;
 import com.zoopbike.application.service.impl.ApplicationUserserviceImpl;
 import com.zoopbike.application.utils.zoopBikeRentalApplicationConstant;
@@ -29,6 +31,8 @@ public class ApplicationUserController {
     @Autowired
     zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant;
 
+    @Autowired
+    BikeBookingJpa bikeBookingJpa;
     @PostMapping(value = "/register")
     ResponseEntity<ApplicationUserDto> register(@RequestBody @Valid ApplicationUserDto applicationUserDto) {
         ApplicationUserDto applicationUser = this.applicationUserService.registerApplicationUser(applicationUserDto);
@@ -68,11 +72,17 @@ public class ApplicationUserController {
             @RequestParam(value = "pageSize", defaultValue = com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defaultApplicationPageSize, required = false) int PageSize) {
         GenricPage<ApplicationUserDto> allUser = this.applicationUserService.getAllUser(PageNo, PageSize);
         return ResponseEntity.status(HttpStatus.OK).body(allUser);
-
     }
 
 
 
+//
+//    @GetMapping(value = "/get/bookings/{userId}")
+//    public ResponseEntity<List<BikeBooking>> getAllBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId){
+//       List<BikeBooking>allBookingOfuser= applicationUserService.getAllBookingOfuser( applicationUserId);
+//       return  ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
+//
+//    }
 
 
 }

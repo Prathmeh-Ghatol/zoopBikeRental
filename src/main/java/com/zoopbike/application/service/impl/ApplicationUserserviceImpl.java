@@ -1,12 +1,7 @@
 package com.zoopbike.application.service.impl;
 
-import com.zoopbike.application.dto.ApplicationUserDto;
-import com.zoopbike.application.dto.CurrentAddressDto;
-import com.zoopbike.application.dto.GenricPage;
-import com.zoopbike.application.dto.PermenetAddressDto;
-import com.zoopbike.application.entity.ApplicationUser;
-import com.zoopbike.application.entity.CurrentAddress;
-import com.zoopbike.application.entity.Permanentaddress;
+import com.zoopbike.application.dto.*;
+import com.zoopbike.application.entity.*;
 import com.zoopbike.application.exception.ApplicationUserException;
 import com.zoopbike.application.exception.BadaddressException;
 import com.zoopbike.application.repo.ApplicationUserRepo;
@@ -160,7 +155,6 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
                 PermenetAddressDto permanentaddressDto = this.objectMappingService.entityToPojo(applicationUser.getPermanentaddress(), PermenetAddressDto.class);
                 applicationUserDto.setCurrentAddressDto(currentAddressDto);
                 applicationUserDto.setPermenetAddressDto(permanentaddressDto);
-                System.out.println("******************comming from repo");
                 return applicationUserDto;
             } else {
                 throw new ApplicationUserException("User not found !!", email);
@@ -204,7 +198,18 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
         applicationUserGenricPage.setPageSize(page.getSize());
         return applicationUserGenricPage;
 
-
     }
+
+//    public List<BikeBooking>getAllBookingOfuser(UUID applicationUserId){
+//                ApplicationUser applicationUser=this.applicationUserRepo.findById(applicationUserId).orElseThrow(()->
+//                        new ApplicationUserException("The user not found with id", "ApplicationUser"));
+//                List<BikeBooking>getAllBooking=applicationUser.getBooking();
+//
+//                getAllBooking.stream().map(bikeBooking -> {
+//                    UUID bookId=bikeBooking.getBookingId();
+//
+//                }).collect(Collectors.toList());
+//
+//    }
 
 }

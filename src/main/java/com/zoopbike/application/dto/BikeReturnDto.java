@@ -31,7 +31,7 @@ public class BikeReturnDto {
     private Double AfterfreeDriveKmChargePerKm;
     private Boolean available;
     private double pricePerDay;
-    private Double bikeFreeFuel;;
+    private Double bikeFreeFuel;
     private BikeType bikeType;
 
 }
