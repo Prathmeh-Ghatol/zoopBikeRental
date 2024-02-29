@@ -37,7 +37,8 @@ public class BikeBooking {
     @JoinTable(name = "BIKE_USER_BOOK",joinColumns = {@JoinColumn(name = "BOOKING_ID",referencedColumnName = "bookingId")},
             inverseJoinColumns = {@JoinColumn(name= "APPLICATION_USER_ID",referencedColumnName = "applicationUserId")}
     )
-    @JsonBackReference
+    //@JsonBackReference
+    @JsonManagedReference
     private List<ApplicationUser> applicationUserBikeBook;
 
 
@@ -45,9 +46,15 @@ public class BikeBooking {
         @JoinTable(name = "`bikesBooked`",joinColumns = {@JoinColumn(name = "BOOKING_ID",referencedColumnName = "bookingId")},
             inverseJoinColumns = {@JoinColumn(name= "BIKE_ID",referencedColumnName = "bikeId")}
     )
-    @JsonBackReference
+    //@JsonBackReference
+    @JsonManagedReference
     private List<Bike> bikesBookReg;
 
+    private Double Bookedprice;
+
+    private Double pricePaid;
+
+    private Double kmDriven;
 
 
 

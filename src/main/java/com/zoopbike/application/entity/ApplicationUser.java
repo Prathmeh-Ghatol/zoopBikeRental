@@ -36,7 +36,8 @@ public class ApplicationUser {
     private Permanentaddress permanentaddress;
 
     @ManyToMany(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY,mappedBy = "applicationUserBikeBook")
-    @JsonManagedReference
+   // @JsonManagedReference
+    @JsonBackReference
     private List<BikeBooking>Booking;
 
 

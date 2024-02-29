@@ -24,6 +24,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.UUID;
 
+import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.zeroDay;
+import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.zeroHour;
+
 @Service
 public class BookingService implements BikeBookingService {
 
@@ -76,28 +79,18 @@ public class BookingService implements BikeBookingService {
 
         ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationId).orElseThrow(() -> new ApplicationUserException("User not exist with this id" + applicationId, "ApplicationUser"));
         Bike bike = this.bikeRepo.findById(bikeId).orElseThrow(() -> new BadBikeException("Bike is not present with " + bikeId, "BIKE"));
-        if (bike.getAvailable().equals(true) && bike.getBikeProviderPartner().getIsAvilable() == true && bike.getUnder_Maintenance().equals(false)) {
+        if (bike.getAvailable().equals(true) && bike.getBikeProviderPartner().getIsAvilable() == true && bike.getUnder_Maintenance().equals(false))
+    {
 
             if (bookDto == null) {
-                System.out.println("Booking issue");
+                throw new BadBikeException("Inpute is not vaild", "input");
             }
             System.out.println(bookDto);
             Double pricePerDay = bike.getPricePerDay();
 
             HashMap<String, Long> timing = TimeCalculation(bookDto.getBookingDate(), bookDto.getEndBookingDate());
+                Double amountNeedToPay= priceNeedToPay(timing,pricePerDay);
 
-            long days = timing.get("days");
-            long hour = timing.get("hours");
-            if (days < 0 && hour < 0) {
-                        throw new DateTimeException("Please select proper date ");
-            }
-                if (hour > 0 && days == 0) {
-                    days = 1;
-                }
-                if (hour > 8) {
-                    days = days + 1;
-                }
-                Double amountNeedToPay = days * pricePerDay;
                 BikeEstimadePaymentBeforeBooked bikeEstimadePaymentBeforeBooked = new BikeEstimadePaymentBeforeBooked();
                 BikeReturnDto bikeDto = this.objectMappingService.entityToPojo(bike, BikeReturnDto.class);
                 bikeEstimadePaymentBeforeBooked.setBike(bikeDto);
@@ -115,7 +108,7 @@ public class BookingService implements BikeBookingService {
     }
 
 
-    private HashMap<java.lang.String, Long> TimeCalculation(LocalDateTime bookedDay, LocalDateTime lastdate) {
+    public HashMap<java.lang.String, Long> TimeCalculation(LocalDateTime bookedDay, LocalDateTime lastdate) {
         Duration duration = Duration.between(bookedDay, lastdate);
         long days = duration.toDays();
         long hours = duration.toHours() % 24;
@@ -124,6 +117,20 @@ public class BookingService implements BikeBookingService {
         time.put("hours", hours);
         return time;
     }
+    public  Double priceNeedToPay(HashMap<String,Long>timing,Double pricePerDay) {
+        long days = timing.get("days");
+        long hour = timing.get("hours");
+        if (days <zeroDay  && hour < zeroHour) {
+            throw new DateTimeException("Please select proper date ");
+        }
+        if (hour > zeroHour && days == zeroDay) {
+            days = 1;
+        }
+        if (hour > 8) {
+            days = days + 1;
+        }
+        Double amountNeedToPay = days * pricePerDay;
 
-
+        return amountNeedToPay;
+    }
 }

@@ -18,10 +18,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRecords {
+        private LocalDateTime bookingDate;
+        private LocalDateTime endBookingDate;
+        private BikeforBookingReturnDto bike;
+        private Double Bookedprice;
+        private Double pricePaid;
+        private Double kmDriven;
 
-    private UUID bookingId;
-    private LocalDateTime dateBook;
-    private LocalDateTime tillDate;
-    private  Bike bike;
-    private  Double price;
 }

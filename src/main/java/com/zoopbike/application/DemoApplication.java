@@ -5,6 +5,7 @@ import com.zoopbike.application.entity.BikeProviderPartner;
 import com.zoopbike.application.repo.BikePartnerRepo;
 import com.zoopbike.application.service.impl.BikePartnerServiceImpl;
 import com.zoopbike.application.service.impl.BikeSeImpl;
+import com.zoopbike.application.utils.zoopBikeRentalApplicationConstant;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -27,9 +28,12 @@ public class DemoApplication implements CommandLineRunner{
 		return new ModelMapper();
 	}
 
+	@Autowired
+	zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant ;
 
 	@Override
 	public void run(String... args) throws Exception {
+		System.out.println("*******************" + zoopBikeRentalApplicationConstant.getCurrentDateTime());
 
 	}
 }

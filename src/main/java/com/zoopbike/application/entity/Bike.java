@@ -17,7 +17,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Table(name = "BIKE")
 public class Bike {
 
@@ -46,7 +45,8 @@ public class Bike {
     private BikeType bikeType;
     private Double bikeFreeFuel;;
     @ManyToMany(mappedBy ="bikesBookReg",fetch = FetchType.LAZY)
-    @JsonManagedReference
+    //@JsonManagedReference
+    @JsonBackReference
     private List<BikeBooking>bikeBookings;
 
 }

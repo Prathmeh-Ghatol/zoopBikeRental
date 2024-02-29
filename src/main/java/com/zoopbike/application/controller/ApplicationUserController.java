@@ -2,6 +2,7 @@ package com.zoopbike.application.controller;
 
 
 import com.zoopbike.application.dto.ApplicationUserDto;
+import com.zoopbike.application.dto.BookingRecords;
 import com.zoopbike.application.dto.GenricPage;
 import com.zoopbike.application.entity.ApplicationUser;
 import com.zoopbike.application.entity.BikeBooking;
@@ -17,10 +18,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/application/user")
@@ -76,13 +74,19 @@ public class ApplicationUserController {
 
 
 
-//
-//    @GetMapping(value = "/get/bookings/{userId}")
-//    public ResponseEntity<List<BikeBooking>> getAllBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId){
-//       List<BikeBooking>allBookingOfuser= applicationUserService.getAllBookingOfuser( applicationUserId);
-//       return  ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
-//
-//    }
+
+    @GetMapping(value = "/get/all/bookings/{userId}")
+    public ResponseEntity<Set<BookingRecords>> getAllBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId){
+       Set<BookingRecords> allBookingOfuser= applicationUserService.getAllBookingOfuser( applicationUserId);
+       return  ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
+
+    }@GetMapping(value = "/get/current/booking/{userId}")
+    public ResponseEntity<Set<BookingRecords>> getCurrentBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId){
+       Set<BookingRecords> allBookingOfuser= applicationUserService.getCurrentBookingOfuser( applicationUserId);
+       return  ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
+
+    }
+
 
 
 }

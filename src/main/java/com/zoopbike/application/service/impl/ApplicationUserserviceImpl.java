@@ -4,27 +4,22 @@ import com.zoopbike.application.dto.*;
 import com.zoopbike.application.entity.*;
 import com.zoopbike.application.exception.ApplicationUserException;
 import com.zoopbike.application.exception.BadaddressException;
-import com.zoopbike.application.repo.ApplicationUserRepo;
-import com.zoopbike.application.repo.CurrentAddressRepo;
-import com.zoopbike.application.repo.PermentAddressRepo;
+import com.zoopbike.application.repo.*;
 import com.zoopbike.application.service.ApplicationUserService;
 import com.zoopbike.application.utils.CacheStore;
 import com.zoopbike.application.utils.ObjectMappingService;
+import com.zoopbike.application.utils.zoopBikeRentalApplicationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.zoopbike.application.utils.SqlQuery.findApplicationUserByEmail;
+import java.time.LocalDateTime;
 
 @Service
 public class ApplicationUserserviceImpl implements ApplicationUserService {
@@ -36,17 +31,30 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
 
     private CacheStore cacheStore;
 
+    private BikeBookingJpa bikeBookingJpa;
+
+    private BikeRepo bikeRepo;
+    
+    private BookingService bookingService;
+
+    private zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant;
     @Autowired
     ApplicationUserserviceImpl(ApplicationUserRepo applicationUserRepo, PermentAddressRepo permentAddressRepo,
                                CurrentAddressRepo currentAddressRepo,
-                               ObjectMappingService objectMappingService, CacheStore cacheStore) {
+                               ObjectMappingService objectMappingService, CacheStore cacheStore,BikeBookingJpa bikeBookingJpp
+                            ,BikeRepo bikeRepo, zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant,
+                               BookingService bookingService)
+    {
 
         this.applicationUserRepo = applicationUserRepo;
         this.permentAddressRepo = permentAddressRepo;
         this.currentAddressRepo = currentAddressRepo;
         this.objectMappingService = objectMappingService;
         this.cacheStore = cacheStore;
-
+        this.bikeBookingJpa=bikeBookingJpa;
+        this.bikeRepo=bikeRepo;
+        this.zoopBikeRentalApplicationConstant=zoopBikeRentalApplicationConstant;
+        this.bookingService=bookingService;
     }
 
     @Override
@@ -200,16 +208,64 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
 
     }
 
-//    public List<BikeBooking>getAllBookingOfuser(UUID applicationUserId){
-//                ApplicationUser applicationUser=this.applicationUserRepo.findById(applicationUserId).orElseThrow(()->
-//                        new ApplicationUserException("The user not found with id", "ApplicationUser"));
-//                List<BikeBooking>getAllBooking=applicationUser.getBooking();
-//
-//                getAllBooking.stream().map(bikeBooking -> {
-//                    UUID bookId=bikeBooking.getBookingId();
-//
-//                }).collect(Collectors.toList());
-//
-//    }
+    public Set<BookingRecords> getAllBookingOfuser(UUID applicationUserId) {
+
+      ApplicationUser        applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
+                       , "ApplicationUser"));
+        List<BikeBooking> bookingOfUser = applicationUser.getBooking();
+
+
+                Set<BookingRecords> bookingRecordsCollection = bookingOfUser.stream().map(booking -> {
+                    BookingRecords bookingRecords = new BookingRecords();
+                    bookingRecords.setBookingDate(booking.getDateBook());
+                    bookingRecords.setEndBookingDate(booking.getTillDate());
+                    byte[] bike=this.applicationUserRepo.getAllBikes(booking.getBookingId());
+                    UUID uuid =convertBinaryToUUID(bike);
+                    Optional<Bike> bikeOptional =this.bikeRepo.findById(uuid);
+                    bookingRecords.setBike(this.objectMappingService.entityToPojo(bikeOptional.get(), BikeforBookingReturnDto.class));
+                   HashMap<String,Long>time =bookingService.TimeCalculation(booking.getDateBook(),booking.getTillDate() );
+                    bookingRecords.setBookedprice(bookingService.priceNeedToPay(time,bikeOptional.get().getPricePerDay()));
+
+                    return bookingRecords;
+                }
+        ).collect(Collectors.toSet());
+
+        return bookingRecordsCollection;
+    }
+    private UUID convertBinaryToUUID(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        long high = byteBuffer.getLong();
+        long low = byteBuffer.getLong();
+        return new UUID(high, low);
+    }
+    public Set<BookingRecords> getCurrentBookingOfuser(UUID applicationUserId) {
+
+        ApplicationUser  applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
+                , "ApplicationUser"));
+        List<BikeBooking> bookingOfUser = applicationUser.getBooking().stream()
+                .filter(booking -> validateForCurrentBooking(booking.getTillDate()))
+                .collect(Collectors.toList());
+
+
+
+        Set<BookingRecords> bookingRecordsCollection = bookingOfUser.stream().map(booking -> {
+                    BookingRecords bookingRecords = new BookingRecords();
+                    bookingRecords.setBookingDate(booking.getDateBook());
+                    bookingRecords.setEndBookingDate(booking.getTillDate());
+                    byte[] bike=this.applicationUserRepo.getAllBikes(booking.getBookingId());
+                    UUID uuid =convertBinaryToUUID(bike);
+                    Optional<Bike> bikeOptional =this.bikeRepo.findById(uuid);
+                    bookingRecords.setBike(this.objectMappingService.entityToPojo(bikeOptional.get(), BikeforBookingReturnDto.class));
+
+                    return bookingRecords;
+                }
+        ).collect(Collectors.toSet());
+
+        return bookingRecordsCollection;
+    }
+
+    private boolean validateForCurrentBooking(LocalDateTime localDateTime) {
+        return zoopBikeRentalApplicationConstant.getCurrentDateTime().isBefore(localDateTime);
+    }
 
 }

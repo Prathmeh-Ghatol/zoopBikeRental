@@ -13,7 +13,6 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class BikeProviderPartnerDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID bikeProviderPartnerId;

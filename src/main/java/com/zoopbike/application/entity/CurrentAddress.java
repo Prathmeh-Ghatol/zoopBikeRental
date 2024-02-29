@@ -12,7 +12,6 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Table(name = "CURRENT_ADDRESS")
 public class CurrentAddress {
     @Id
