@@ -1,11 +1,7 @@
 package com.zoopbike.application.service.impl;
 
-import com.zoopbike.application.dto.BikeProviderPartnerDto;
-import com.zoopbike.application.dto.CurrentAddressDto;
-import com.zoopbike.application.dto.PermenetAddressDto;
-import com.zoopbike.application.entity.BikeProviderPartner;
-import com.zoopbike.application.entity.CurrentAddress;
-import com.zoopbike.application.entity.Permanentaddress;
+import com.zoopbike.application.dto.*;
+import com.zoopbike.application.entity.*;
 import com.zoopbike.application.exception.BadaddressException;
 import com.zoopbike.application.exception.BikeProviderPartnerException;
 import com.zoopbike.application.repo.BikePartnerRepo;
@@ -14,18 +10,18 @@ import com.zoopbike.application.repo.PermentAddressRepo;
 import com.zoopbike.application.service.BikePartnerService;
 import com.zoopbike.application.utils.CacheStore;
 import com.zoopbike.application.utils.ObjectMappingService;
+import com.zoopbike.application.utils.zoopBikeRentalApplicationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Service
 public class BikePartnerServiceImpl implements BikePartnerService {
-    private Map<String,BikeProviderPartner>bikeProviderPartnercache=new HashMap<>();
+    private Map<String, BikeProviderPartner> bikeProviderPartnercache = new HashMap<>();
     @Autowired
     private BikePartnerRepo bikePartnerRepo;
     @Autowired
@@ -39,9 +35,15 @@ public class BikePartnerServiceImpl implements BikePartnerService {
     @Autowired
     private CacheStore cacheStore;
 
+    @Autowired
+    private ApplicationUserserviceImpl applicationUserservice;
+
+    @Autowired
+    private zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant;
+
     @Override
     public BikeProviderPartnerDto register(BikeProviderPartnerDto bikeProviderPartnerDto) {
-           if(bikeProviderPartnercache.containsKey(bikeProviderPartnerDto.getEmail())){
+        if (bikeProviderPartnercache.containsKey(bikeProviderPartnerDto.getEmail())) {
             throw new BikeProviderPartnerException("bikeprovider already exist with this mail  please login " + bikeProviderPartnerDto.getEmail(),
                     "BikeProviderPartner");
         }
@@ -50,23 +52,23 @@ public class BikePartnerServiceImpl implements BikePartnerService {
         Permanentaddress permanentaddress = mappingService.pojoToentity(permenetAddressDto, Permanentaddress.class);
         permanentaddress.setBikeProviderPartner(bikeProviderPartner);
         bikeProviderPartner.setPermanentaddress(permanentaddress);
-        CurrentAddressDto currentAddressDto=bikeProviderPartnerDto.getCurrentAddressDto();
-         CurrentAddress currentAddress=null;
+        CurrentAddressDto currentAddressDto = bikeProviderPartnerDto.getCurrentAddressDto();
+        CurrentAddress currentAddress = null;
         if (bikeProviderPartnerDto.getCurrentAddressSameToPermentAddress() == true &&
-                currentAddressDto==null) {
+                currentAddressDto == null) {
             currentAddress = this.mappingService.permeantAddressTocurrentAddress(permanentaddress, CurrentAddress.class);
 
             if (currentAddress != null) {
                 currentAddress.setBikeProviderPartnerForCurrentAddress(bikeProviderPartner);
                 bikeProviderPartner.setCurrentAddress(currentAddress);
             }
-        }else if(currentAddressDto!=null){
-           currentAddress=this.mappingService.pojoToentity(currentAddressDto, CurrentAddress.class);
-           bikeProviderPartner.setCurrentAddress(currentAddress);
-           currentAddress.setBikeProviderPartnerForCurrentAddress(bikeProviderPartner);
-        }else if(bikeProviderPartnerDto.getCurrentAddressSameToPermentAddress().equals(false)&&
-            bikeProviderPartnerDto.getCurrentAddressDto()==null){
-            throw new BadaddressException("Please Provide current address",null);
+        } else if (currentAddressDto != null) {
+            currentAddress = this.mappingService.pojoToentity(currentAddressDto, CurrentAddress.class);
+            bikeProviderPartner.setCurrentAddress(currentAddress);
+            currentAddress.setBikeProviderPartnerForCurrentAddress(bikeProviderPartner);
+        } else if (bikeProviderPartnerDto.getCurrentAddressSameToPermentAddress().equals(false) &&
+                bikeProviderPartnerDto.getCurrentAddressDto() == null) {
+            throw new BadaddressException("Please Provide current address", null);
 
         }
         bikeProviderPartner = this.bikePartnerRepo.save(bikeProviderPartner);
@@ -78,10 +80,10 @@ public class BikePartnerServiceImpl implements BikePartnerService {
         }
 
 
-        Optional<CurrentAddress>currentAddressForCoconversion=this.currentAddressRepo.findById(bikeProviderPartner.getCurrentAddress().getCurrentAddressId());
+        Optional<CurrentAddress> currentAddressForCoconversion = this.currentAddressRepo.findById(bikeProviderPartner.getCurrentAddress().getCurrentAddressId());
         CurrentAddressDto currentAddressDto2 = null;
         if (currentAddressForCoconversion.get() != null) {
-            currentAddressDto2= this.mappingService.entityToPojo(currentAddressForCoconversion.get(), CurrentAddressDto.class);
+            currentAddressDto2 = this.mappingService.entityToPojo(currentAddressForCoconversion.get(), CurrentAddressDto.class);
 
         }
 
@@ -89,7 +91,7 @@ public class BikePartnerServiceImpl implements BikePartnerService {
         BikeProviderPartnerDto dto = this.mappingService.entityToPojo(bikeProviderPartner, BikeProviderPartnerDto.class);
         dto.setPermenetAddressDto(permenetAddressDtoReturn);
         dto.setCurrentAddressDto(currentAddressDto2);
-        bikeProviderPartnercache.put(bikeProviderPartner.getEmail(),bikeProviderPartner);
+        bikeProviderPartnercache.put(bikeProviderPartner.getEmail(), bikeProviderPartner);
         return dto;
 
     }
@@ -108,66 +110,65 @@ public class BikePartnerServiceImpl implements BikePartnerService {
         return removeFlag;
     }
 
-    public BikeProviderPartnerDto getBikeProviderPartnerByEmailorVenderId(String email,UUID bikeproviderVenderUUID){
-        BikeProviderPartner bikeProviderPartner=null;
-        if(email!=null){
-            bikeProviderPartner=cacheStore.bikeProviderPartnerMap.get(email);
-            if(bikeProviderPartner!=null && bikeproviderVenderUUID.equals(null)){
-                return this.mappingService.entityToPojo(bikeProviderPartner,BikeProviderPartnerDto.class);
-            } else if (bikeProviderPartner==null) {
-            bikeProviderPartner= this.bikePartnerRepo.findBikeProviderPartner(email);
-                CurrentAddress currentAddress=bikeProviderPartner.getCurrentAddress();
-                CurrentAddressDto currentAddressDto=this.mappingService.entityToPojo(currentAddress,CurrentAddressDto.class);
-                Permanentaddress permanentaddress=bikeProviderPartner.getPermanentaddress();
-                PermenetAddressDto permenetAddressDto=this.mappingService.entityToPojo(permanentaddress,PermenetAddressDto.class);
-                BikeProviderPartnerDto bikeProviderPartnerDto= this.mappingService.entityToPojo(bikeProviderPartner,BikeProviderPartnerDto.class);
+    public BikeProviderPartnerDto getBikeProviderPartnerByEmailorVenderId(String email, UUID bikeproviderVenderUUID) {
+        BikeProviderPartner bikeProviderPartner = null;
+        if (email != null) {
+            bikeProviderPartner = cacheStore.bikeProviderPartnerMap.get(email);
+            if (bikeProviderPartner != null && bikeproviderVenderUUID.equals(null)) {
+                return this.mappingService.entityToPojo(bikeProviderPartner, BikeProviderPartnerDto.class);
+            } else if (bikeProviderPartner == null) {
+                bikeProviderPartner = this.bikePartnerRepo.findBikeProviderPartner(email);
+                CurrentAddress currentAddress = bikeProviderPartner.getCurrentAddress();
+                CurrentAddressDto currentAddressDto = this.mappingService.entityToPojo(currentAddress, CurrentAddressDto.class);
+                Permanentaddress permanentaddress = bikeProviderPartner.getPermanentaddress();
+                PermenetAddressDto permenetAddressDto = this.mappingService.entityToPojo(permanentaddress, PermenetAddressDto.class);
+                BikeProviderPartnerDto bikeProviderPartnerDto = this.mappingService.entityToPojo(bikeProviderPartner, BikeProviderPartnerDto.class);
 
                 bikeProviderPartnerDto.setCurrentAddressDto(currentAddressDto);
                 bikeProviderPartnerDto.setPermenetAddressDto(permenetAddressDto);
                 return bikeProviderPartnerDto;
 
-            }else {
+            } else {
                 throw new BikeProviderPartnerException("Bike Provider Partner not found !!", email);
             }
-        }else if(bikeproviderVenderUUID!=null && email.isEmpty()){
-            Optional<BikeProviderPartner>bikeProviderPartnerOptional=this.bikePartnerRepo.findById(bikeproviderVenderUUID);
-            if(!bikeProviderPartnerOptional.isEmpty()){
-                bikeProviderPartner=bikeProviderPartnerOptional.get();
-                CurrentAddress currentAddress=bikeProviderPartner.getCurrentAddress();
-                CurrentAddressDto currentAddressDto=this.mappingService.entityToPojo(currentAddress,CurrentAddressDto.class);
-                Permanentaddress permanentaddress=bikeProviderPartner.getPermanentaddress();
-                PermenetAddressDto permenetAddressDto=this.mappingService.entityToPojo(permanentaddress,PermenetAddressDto.class);
-                BikeProviderPartnerDto bikeProviderPartnerDto= this.mappingService.entityToPojo(bikeProviderPartner,BikeProviderPartnerDto.class);
+        } else if (bikeproviderVenderUUID != null && email.isEmpty()) {
+            Optional<BikeProviderPartner> bikeProviderPartnerOptional = this.bikePartnerRepo.findById(bikeproviderVenderUUID);
+            if (!bikeProviderPartnerOptional.isEmpty()) {
+                bikeProviderPartner = bikeProviderPartnerOptional.get();
+                CurrentAddress currentAddress = bikeProviderPartner.getCurrentAddress();
+                CurrentAddressDto currentAddressDto = this.mappingService.entityToPojo(currentAddress, CurrentAddressDto.class);
+                Permanentaddress permanentaddress = bikeProviderPartner.getPermanentaddress();
+                PermenetAddressDto permenetAddressDto = this.mappingService.entityToPojo(permanentaddress, PermenetAddressDto.class);
+                BikeProviderPartnerDto bikeProviderPartnerDto = this.mappingService.entityToPojo(bikeProviderPartner, BikeProviderPartnerDto.class);
                 bikeProviderPartnerDto.setCurrentAddressDto(currentAddressDto);
                 bikeProviderPartnerDto.setPermenetAddressDto(permenetAddressDto);
                 return bikeProviderPartnerDto;
 
-            }else{
-                throw new BikeProviderPartnerException("Bike Provider Partner not found !!",String.valueOf( bikeproviderVenderUUID));
+            } else {
+                throw new BikeProviderPartnerException("Bike Provider Partner not found !!", String.valueOf(bikeproviderVenderUUID));
             }
         }
-        System.out.println("********************** " +bikeProviderPartner.getBikeOwner());
-        return this.mappingService.entityToPojo(bikeProviderPartner,BikeProviderPartnerDto.class);
+        return this.mappingService.entityToPojo(bikeProviderPartner, BikeProviderPartnerDto.class);
     }
 
 
-    public BikeProviderPartnerDto update(String email,BikeProviderPartnerDto bikeProviderPartnerDto){
-        BikeProviderPartner bikeProviderPartner=bikeProviderPartnercache.get(email);
-        BikeProviderPartnerDto bikeProviderPartnerDtoReturn=null;
-        if(bikeProviderPartner!=null ){
+    public BikeProviderPartnerDto update(String email, BikeProviderPartnerDto bikeProviderPartnerDto) {
+        BikeProviderPartner bikeProviderPartner = bikeProviderPartnercache.get(email);
+        BikeProviderPartnerDto bikeProviderPartnerDtoReturn = null;
+        if (bikeProviderPartner != null) {
             bikeProviderUpdate(bikeProviderPartner, bikeProviderPartnerDto);
         }
-        bikeProviderPartner= this.bikePartnerRepo.findBikeProviderPartner(email);
-        if (bikeProviderPartner!=null) {
+        bikeProviderPartner = this.bikePartnerRepo.findBikeProviderPartner(email);
+        if (bikeProviderPartner != null) {
             bikeProviderUpdate(bikeProviderPartner, bikeProviderPartnerDto);
-        }
-        else {
+        } else {
             throw new BikeProviderPartnerException("Bike Provider not exist with this mail " + bikeProviderPartnerDto.getEmail(), "BikeProviderPartner");
         }
         return bikeProviderPartnerDtoReturn;
 
     }
-    private BikeProviderPartner bikeProviderUpdate(BikeProviderPartner  bikeProvider ,BikeProviderPartnerDto bikeProviderPartnerDto){
+
+    private BikeProviderPartner bikeProviderUpdate(BikeProviderPartner bikeProvider, BikeProviderPartnerDto bikeProviderPartnerDto) {
 
         bikeProvider.setCellNumber(bikeProviderPartnerDto.getCellNumber());
         bikeProvider.setCellNumber(bikeProviderPartnerDto.getCellNumber());
@@ -179,10 +180,43 @@ public class BikePartnerServiceImpl implements BikePartnerService {
         //Permanentaddress permanentaddress = this.mappingService.pojoToentity(bikeProviderPartnerDto.getPermenetAddressDto(), Permanentaddress.class);
         //bikeProvider.setCurrentAddress(currentAddress);
         //bikeProvider.setPermanentaddress(permanentaddress);
-        BikeProviderPartner bikeProviderPartnerUpdated=this.bikePartnerRepo.save(bikeProvider);
+        BikeProviderPartner bikeProviderPartnerUpdated = this.bikePartnerRepo.save(bikeProvider);
         return bikeProviderPartnerUpdated;
 
     }
+//    public List<BikeBooking> getBookedBikeStatus(UUID BikeProviderId) {
+//        BikeProviderPartner bikeProvider = this.bikePartnerRepo.findById(BikeProviderId)
+//                .orElseThrow(() -> new BikeProviderPartnerException("Bike Provider is not available with id : " + BikeProviderId, "BikeProvider"));
+//
+//        Set<Bike> allBike = bikeProvider.getBikeOwner();
+//        List<BikeBooking> allBook = allBike.stream().
+//                map(bike -> bike.getBikeBookings()).collect(Collectors.toList());
+//                .map(bikeBookings -> {
+//                    List<BikeStatusForBikeProvider> allCurrentBooking = new ArrayList<>();
+//
+//                    for (BikeBooking bikeBooking : bikeBookings) {
+//                        BikeStatusForBikeProvider bikeStatusForBikeProvider = new BikeStatusForBikeProvider();
+//                        if (validateForCurrentBooking(bikeBooking.getTillDate())) {
+//                            bikeStatusForBikeProvider.setApplicationUserDto(this.mappingService
+//                                    .entityToPojo(bikeBooking.getApplicationUserBikeBook(), ApplicationUserDto.class));
+//
+//                            bikeStatusForBikeProvider.setBookingId(bikeBooking.getBookingId());
+//                            bikeStatusForBikeProvider.setBookingDate(bikeBooking.getDateBook());
+//                            bikeStatusForBikeProvider.setKmDriven(bikeBooking.getKmDriven());
+//                            bikeStatusForBikeProvider.setBookedprice(bikeBooking.getBookedprice());
+//                            bikeStatusForBikeProvider.setEndBookingDate(bikeBooking.getTillDate());
+//                            bikeStatusForBikeProvider.setPricePaid(bikeBooking.getPricePaid());
+//                        }
+//                        allCurrentBooking.add(bikeStatusForBikeProvider);
+//                    }
+//                    return allCurrentBooking;
+//                }).collect(Collectors.toList());
+//        return allBook;
+//    }
+// }
+    private boolean validateForCurrentBooking(LocalDateTime tillBooking) {
+
+        return zoopBikeRentalApplicationConstant.getCurrentDateTime().isBefore(tillBooking);
 
     }
-
+}

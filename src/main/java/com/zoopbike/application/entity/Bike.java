@@ -45,8 +45,8 @@ public class Bike {
     private BikeType bikeType;
     private Double bikeFreeFuel;;
     @ManyToMany(mappedBy ="bikesBookReg",fetch = FetchType.LAZY)
-    //@JsonManagedReference
-    @JsonBackReference
+    @JsonManagedReference
+//    @JsonBackReference
     private List<BikeBooking>bikeBookings;
 
 }
