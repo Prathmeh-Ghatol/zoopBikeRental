@@ -50,7 +50,6 @@ public class BikeSeImpl implements BikeService {
         }
         Bike bike = new Bike();
         bike.setAfterfreeDriveKmChargePerKm(10.0);
-        bike.setAvailable(true);
         bike.setBikeBrand(bikeDto.getBikeBrand());
         bike.setBikeName(bikeDto.getBikeName());
         bike.setBikeProviderPartner(bikeProviderPartner);
@@ -81,9 +80,7 @@ public class BikeSeImpl implements BikeService {
             bikeUpdatBike = bike.get();
             bikeUpdatBike.setPucValidity(bikeDto.getPucValidity());
             bikeUpdatBike.setUnder_Maintenance(bikeDto.getUnder_Maintenance());
-            bikeUpdatBike.setAvailable(bikeDto.getAvailable());
             bikeUpdatBike.setAfterfreeDriveKmChargePerKm(bikeDto.getAfterfreeDriveKmChargePerKm());
-
             if(bike.get().getCurrentMeterReading()<=bikeDto.getCurrentMeterReading()){
             bikeUpdatBike.setCurrentMeterReading(bikeDto.getCurrentMeterReading());
             }else {

@@ -8,6 +8,7 @@ import com.zoopbike.application.entity.BikeProviderPartner;
 import com.zoopbike.application.exception.ApplicationUserException;
 import com.zoopbike.application.exception.BadBikeException;
 import com.zoopbike.application.exception.BikeProviderPartnerException;
+import com.zoopbike.application.exception.BookingException;
 import com.zoopbike.application.repo.ApplicationUserRepo;
 import com.zoopbike.application.repo.BikeBookingJpa;
 import com.zoopbike.application.repo.BikePartnerRepo;
@@ -37,14 +38,17 @@ public class BookingService implements BikeBookingService {
     private BikeRepo bikeRepo;
     private ObjectMappingService objectMappingService;
 
+    private BikeFindingServiceImpl bikeFindingService;
     @Autowired
     public BookingService(ApplicationUserRepo applicationUserRepo, BikePartnerRepo bikePartnerRepo,
-                          BikeBookingJpa bikeBookingJpa, BikeRepo bikeRepo, ObjectMappingService objectMappingService) {
+                          BikeBookingJpa bikeBookingJpa, BikeRepo bikeRepo, ObjectMappingService objectMappingService,
+                          BikeFindingServiceImpl bikeFindingService) {
         this.applicationUserRepo = applicationUserRepo;
         this.bikePartnerRepo = bikePartnerRepo;
         this.bikeBookingJpa = bikeBookingJpa;
         this.bikeRepo = bikeRepo;
         this.objectMappingService = objectMappingService;
+        this.bikeFindingService=bikeFindingService;
     }
 
     @Override
@@ -55,9 +59,13 @@ public class BookingService implements BikeBookingService {
         if (bike.getBikeProviderPartner().getIsAvilable() == false) {
             throw new BikeProviderPartnerException("This type Bike Provider is not avilable", "BIKE PROVIDER");
         }
+        Bike bikeAvibility= this.bikeFindingService.parseBikeForAvailability(bike,bookDto.getBookingDate(),bookDto.getEndBookingDate());
+        if(bikeAvibility!=null){
+            throw new BookingException("Bike is not avilable for this data", "Bike");
+        }
         BikeBooking bikeBookingSaved = null;
 
-        if (bike.getAvailable().equals(true) && bike.getBikeProviderPartner().getIsAvilable().equals(true)
+        if ( bike.getBikeProviderPartner().getIsAvilable().equals(true)
                 && bike.getUnder_Maintenance().equals(false)) {
             BikeBooking bikeBooking = new BikeBooking();
             bikeBooking.setDateBook(bookDto.getBookingDate());
@@ -65,7 +73,6 @@ public class BookingService implements BikeBookingService {
             bikeBooking.setApplicationUserBikeBook(Collections.singletonList(applicationUser));
             bikeBooking.setBikesBookReg(Collections.singletonList(bike));
             bikeBookingSaved = this.bikeBookingJpa.save(bikeBooking);
-            bike.setAvailable(false);
             this.bikeRepo.save(bike);
 
         } else {
@@ -79,13 +86,17 @@ public class BookingService implements BikeBookingService {
 
         ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationId).orElseThrow(() -> new ApplicationUserException("User not exist with this id" + applicationId, "ApplicationUser"));
         Bike bike = this.bikeRepo.findById(bikeId).orElseThrow(() -> new BadBikeException("Bike is not present with " + bikeId, "BIKE"));
-        if (bike.getAvailable().equals(true) && bike.getBikeProviderPartner().getIsAvilable() == true && bike.getUnder_Maintenance().equals(false))
+        if (bike.getBikeProviderPartner().getIsAvilable() == true && bike.getUnder_Maintenance().equals(false))
     {
 
             if (bookDto == null) {
                 throw new BadBikeException("Inpute is not vaild", "input");
             }
-            System.out.println(bookDto);
+
+        Bike bikeAvibility= this.bikeFindingService.parseBikeForAvailability(bike,bookDto.getBookingDate(),bookDto.getEndBookingDate());
+        if(bikeAvibility!=null){
+            throw new BookingException("Bike is not avilable for this data", "Bike");
+        }
             Double pricePerDay = bike.getPricePerDay();
 
             HashMap<String, Long> timing = TimeCalculation(bookDto.getBookingDate(), bookDto.getEndBookingDate());

@@ -15,6 +15,7 @@ public class zoopBikeRentalApplicationConstant {
     public  LocalDateTime getCurrentDateTime(){
         return  LocalDateTime.now();
 
+
     }
 
     public final static Integer zeroHour=0;

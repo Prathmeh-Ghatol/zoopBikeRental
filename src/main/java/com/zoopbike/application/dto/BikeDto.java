@@ -26,7 +26,6 @@ public class BikeDto {
     private Integer freeDriveKm;
     private Double milage;
     private Double afterfreeDriveKmChargePerKm;
-    private Boolean available;
     private Double pricePerDay;
     private BikeType bikeType;
     private Double bikeFreeFuel;

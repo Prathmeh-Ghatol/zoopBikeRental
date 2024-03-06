@@ -39,7 +39,6 @@ public class Bike {
     private Integer freeDriveKm;
     private Double milage;
     private Double afterfreeDriveKmChargePerKm;
-    private Boolean available;
     private Double pricePerDay;
     @Enumerated(EnumType.STRING)
     private BikeType bikeType;
