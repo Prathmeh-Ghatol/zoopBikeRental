@@ -61,7 +61,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
 
-    }  @ExceptionHandler(value = BookingException.class)
+    }
+    @ExceptionHandler(value = BookingException.class)
     public ResponseEntity<Map<String,String>> BookingException(BookingException bookingException){
         exceptionMap=new HashMap<>();
         exceptionMap.put("Message",bookingException.getMessage());
@@ -70,4 +71,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
 
     }
+
+    @ExceptionHandler(value = BikeSearchingException.class)
+    public ResponseEntity<Map<String,String>> BikeSearchingException(BikeSearchingException bikeSearchingException) {
+        exceptionMap = new HashMap<>();
+        exceptionMap.put("Message", bikeSearchingException.getMessage());
+        exceptionMap.put("Entity", bikeSearchingException.getEntity());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
+    }
+        //    @ExceptionHandler(value = Loca.class)
+//    public ResponseEntity<Map<String,String>> BikeSearchingException(BikeSearchingException bikeSearchingException){
+//        exceptionMap=new HashMap<>();
+//        exceptionMap.put("Message",bikeSearchingException.getMessage());
+//        exceptionMap.put("Entity",bikeSearchingException.getEntity());
+//
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
+//
+//    }
 }

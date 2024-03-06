@@ -86,43 +86,20 @@ public class BikeFindingServiceImpl {
     }
 
 
+
     public Bike parseBikeForAvailability(Bike bike, LocalDateTime bookingDate, LocalDateTime tillBookedDate) {
-        // Ensure bike and booking dates are not null
         if (bike == null || bookingDate == null || tillBookedDate == null) {
             throw new IllegalArgumentException("Bike, booking date, and till booked date cannot be null");
         }
-        LocalDate currentDate = LocalDate.now();
+
         List<BikeBooking> bookings = bike.getBikeBookings();
 
-        // Filter the bookings for the current day
-        List<BikeBooking> bookingsFromCurrentDayOnwards = bookings.stream()
-                .filter(booking -> booking.getDateBook().toLocalDate().isEqual(currentDate)
-                        || booking.getDateBook().toLocalDate().isAfter(currentDate))
+        List<BikeBooking> overlappingBookings = bookings.stream()
+                .filter(booking -> booking.getDateBook().isBefore(tillBookedDate) && booking.getTillDate().isAfter(bookingDate))
                 .collect(Collectors.toList());
-
-
-        // Get the list of bookings associated with the bike
-
-        // If there are no bookings, the bike is available for the entire specified time range
-        if (bookingsFromCurrentDayOnwards == null || bookingsFromCurrentDayOnwards.isEmpty()) {
-            return bike;
+        if (!overlappingBookings.isEmpty()) {
+            return null;
         }
-
-        // Iterate over each booking
-        for (BikeBooking booking : bookingsFromCurrentDayOnwards) {
-            // Get the start and end dates of the booking
-            LocalDateTime bookingStartDate = booking.getDateBook();
-            LocalDateTime bookingEndDate = booking.getTillDate();
-
-            // Check if the booking overlaps with the specified time range
-            if (bookingStartDate.isBefore(tillBookedDate) && bookingEndDate.isAfter(bookingDate)) {
-                // If there's an overlap, the bike is booked during the specified time range, so return null
-                return null;
-            }
-        }
-
-        // If no overlapping booking is found, the bike is available during the specified time range, so return the bike
         return bike;
     }
 }
-

@@ -18,11 +18,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRecords {
+        private UUID bookingId;
         private LocalDateTime bookingDate;
         private LocalDateTime endBookingDate;
         private BikeforBookingReturnDto bike;
         private Double Bookedprice;
         private Double pricePaid;
         private Double kmDriven;
+        private CurrentAddressDto pickUpLocation;
 
 }

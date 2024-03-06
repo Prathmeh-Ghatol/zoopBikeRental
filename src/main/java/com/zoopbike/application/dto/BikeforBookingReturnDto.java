@@ -31,6 +31,9 @@ public class BikeforBookingReturnDto {
     private double pricePerDay;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Double afterfreeDriveKmChargePerKm;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Integer freeDriveKm;
+
 
 
 

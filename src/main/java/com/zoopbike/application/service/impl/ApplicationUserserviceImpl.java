@@ -210,10 +210,9 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
 
     public Set<BookingRecords> getAllBookingOfuser(UUID applicationUserId) {
 
-      ApplicationUser        applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
+      ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
                        , "ApplicationUser"));
         List<BikeBooking> bookingOfUser = applicationUser.getBooking();
-
 
                 Set<BookingRecords> bookingRecordsCollection = bookingOfUser.stream().map(booking -> {
                     BookingRecords bookingRecords = new BookingRecords();
@@ -224,7 +223,9 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
                     Optional<Bike> bikeOptional =this.bikeRepo.findById(uuid);
                     bookingRecords.setBike(this.objectMappingService.entityToPojo(bikeOptional.get(), BikeforBookingReturnDto.class));
                    HashMap<String,Long>time =bookingService.TimeCalculation(booking.getDateBook(),booking.getTillDate() );
+                   bookingRecords.setPickUpLocation(objectMappingService.entityToPojo( bikeOptional.get().getBikeProviderPartner().getCurrentAddress(), CurrentAddressDto.class) );
                     bookingRecords.setBookedprice(bookingService.priceNeedToPay(time,bikeOptional.get().getPricePerDay()));
+                    bookingRecords.setBookingId(booking.getBookingId());
 
                     return bookingRecords;
                 }
@@ -256,8 +257,12 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
                     UUID uuid =convertBinaryToUUID(bike);
                     Optional<Bike> bikeOptional =this.bikeRepo.findById(uuid);
                     bookingRecords.setBike(this.objectMappingService.entityToPojo(bikeOptional.get(), BikeforBookingReturnDto.class));
+                    HashMap<String,Long>time =bookingService.TimeCalculation(booking.getDateBook(),booking.getTillDate() );
+                    bookingRecords.setPickUpLocation(objectMappingService.entityToPojo( bikeOptional.get().getBikeProviderPartner().getCurrentAddress(), CurrentAddressDto.class) );
+                    bookingRecords.setBookedprice(bookingService.priceNeedToPay(time,bikeOptional.get().getPricePerDay()));
+                    bookingRecords.setBookingId(booking.getBookingId());
 
-                    return bookingRecords;
+            return bookingRecords;
                 }
         ).collect(Collectors.toSet());
 

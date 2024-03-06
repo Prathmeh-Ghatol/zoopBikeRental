@@ -2,6 +2,7 @@ package com.zoopbike.application.controller;
 
 import com.zoopbike.application.dto.BikeEstimadePaymentBeforeBooked;
 import com.zoopbike.application.dto.BookDto;
+import com.zoopbike.application.dto.BookingRecords;
 import com.zoopbike.application.entity.BikeBooking;
 import com.zoopbike.application.service.impl.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,11 @@ public class BikeBookingContoller {
 
     }
     @PostMapping(value = "/booked/bikeId/{bikeId}/ApplicationUserId/{ApplicationUserId}")
-    public ResponseEntity<BikeBooking>BookBike(@PathVariable("bikeId")UUID uuid,
+    public ResponseEntity<BookingRecords>BookBike(@PathVariable("bikeId")UUID uuid,
                                                @PathVariable("ApplicationUserId") UUID applicationId
             , @RequestBody BookDto bookDot) {
-        BikeBooking bikeEstimadePaymentBeforeBooked=bookingService.bookingBike(uuid, applicationId, bookDot);
-        return ResponseEntity.status(HttpStatus.OK).body(bikeEstimadePaymentBeforeBooked);
+        BookingRecords booked =bookingService.bookingBike(uuid, applicationId, bookDot);
+        return ResponseEntity.status(HttpStatus.OK).body(booked);
 
 
     }
