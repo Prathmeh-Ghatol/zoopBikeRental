@@ -11,4 +11,4 @@ public interface ApplicationUserService {
     public Boolean deRegisterApplicationUser(String email);
     public ApplicationUserDto getApplicationUserByEmailorId(String email, UUID uuid);
 
-}
+    }
