@@ -88,18 +88,36 @@ public class BikeFindingServiceImpl {
 
 
     public Bike parseBikeForAvailability(Bike bike, LocalDateTime bookingDate, LocalDateTime tillBookedDate) {
+        // Check if any parameter is null
         if (bike == null || bookingDate == null || tillBookedDate == null) {
             throw new IllegalArgumentException("Bike, booking date, and till booked date cannot be null");
         }
 
+        // Retrieve the list of bookings associated with the bike
         List<BikeBooking> bookings = bike.getBikeBookings();
 
+        // Filter overlapping bookings
         List<BikeBooking> overlappingBookings = bookings.stream()
-                .filter(booking -> booking.getDateBook().isBefore(tillBookedDate) && booking.getTillDate().isAfter(bookingDate))
+                .filter(booking -> isOverlapping(booking, bookingDate, tillBookedDate))
                 .collect(Collectors.toList());
+
+        // If there are overlapping bookings, the bike is not available
         if (!overlappingBookings.isEmpty()) {
             return null;
         }
+
+        // If no overlapping bookings found, the bike is available
         return bike;
     }
+    private boolean isOverlapping(BikeBooking booking, LocalDateTime bookingDate, LocalDateTime tillBookedDate) {
+        // Retrieve the start and end dates of the booking
+        LocalDateTime start = booking.getDateBook();
+        LocalDateTime end = booking.getTillDate();
+
+        // Check if the booking overlaps with the specified time range and is not cancelled or non-existent
+        // If the booking is cancelled or non-existent, it means the bike is available for booking during that period
+        return start.isBefore(tillBookedDate) && end.isAfter(bookingDate) && (booking.getBooking_Cancelled() == null || booking.getBooking_Cancelled());
+    }
+
+
 }

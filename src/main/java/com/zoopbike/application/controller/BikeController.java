@@ -4,6 +4,7 @@ import com.zoopbike.application.dto.BikeDto;
 import com.zoopbike.application.dto.BikeReturnDto;
 import com.zoopbike.application.dto.GenricPage;
 import com.zoopbike.application.service.impl.BikeSeImpl;
+import com.zoopbike.application.service.impl.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,10 @@ public class BikeController {
     @Autowired
     BikeSeImpl bikeService;
 
+    @Autowired
+    BookingService bookingService;
     @PostMapping(value = "/add/{bikeVenderEmail}")
-    public ResponseEntity<BikeReturnDto>addBike(@RequestBody BikeDto bikeDto, @PathVariable("bikeVenderEmail") String bikeVenderEmail){
-       System.out.println(bikeDto);
+    public ResponseEntity<BikeReturnDto>addBike(@RequestBody BikeDto bikeDto, @PathVariable("bikeVenderEmail") String bikeVenderEmail) throws InterruptedException {
         BikeReturnDto bike=  this.bikeService.addBike(bikeDto, bikeVenderEmail);
        return ResponseEntity.status(HttpStatus.CREATED).body(bike);
     }

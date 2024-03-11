@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.zeroDay;
@@ -72,6 +73,7 @@ public class BookingService implements BikeBookingService {
             bikeBooking.setTillDate(bookDto.getEndBookingDate());
             bikeBooking.setApplicationUserBikeBook(Collections.singletonList(applicationUser));
             bikeBooking.setBikesBookReg(Collections.singletonList(bike));
+            bikeBooking.setBooking_Cancelled(false);
             bikeBookingSaved = this.bikeBookingJpa.save(bikeBooking);
             this.bikeRepo.save(bike);
 
@@ -156,4 +158,7 @@ public class BookingService implements BikeBookingService {
 
         return amountNeedToPay;
     }
-}
+
+
+
+    }

@@ -4,6 +4,7 @@ import com.zoopbike.application.dto.*;
 import com.zoopbike.application.entity.*;
 import com.zoopbike.application.exception.ApplicationUserException;
 import com.zoopbike.application.exception.BadaddressException;
+import com.zoopbike.application.exception.BookingException;
 import com.zoopbike.application.repo.*;
 import com.zoopbike.application.service.ApplicationUserService;
 import com.zoopbike.application.utils.CacheStore;
@@ -43,7 +44,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
                                CurrentAddressRepo currentAddressRepo,
                                ObjectMappingService objectMappingService, CacheStore cacheStore,BikeBookingJpa bikeBookingJpp
                             ,BikeRepo bikeRepo, zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant,
-                               BookingService bookingService)
+                               BookingService bookingService,BikeBookingJpa bikeBookingJpa)
     {
 
         this.applicationUserRepo = applicationUserRepo;
@@ -272,5 +273,62 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
     private boolean validateForCurrentBooking(LocalDateTime localDateTime) {
         return zoopBikeRentalApplicationConstant.getCurrentDateTime().isBefore(localDateTime);
     }
+
+    public Boolean cancelledBooking(UUID bookingId,UUID applicationId){
+        Boolean flag=false;
+        BikeBooking bikeBooking=this.bikeBookingJpa.findById(bookingId).orElseThrow(()-> new BookingException("Booking is not found with boooking Id " + bookingId , "BOOKING"));
+        ApplicationUser applicationUser =this.applicationUserRepo.findById(applicationId).orElseThrow(()-> new ApplicationUserException("Application User Not Found"  ,"ApplicationUser"));
+        Set<BookingRecords>allBookings=getCurrentBookingOfuser(applicationId);
+        Boolean bookingFound=false;
+        for(BookingRecords bookingRecords:allBookings){
+            if(bookingRecords.getBookingId()==bookingId){
+                bookingFound=true;
+                break;
+            }else {
+                continue;
+            }
+        }
+        if(bookingFound==true) {
+            bikeBooking.setBooking_Cancelled(true);
+        }
+        BikeBooking booking=this.bikeBookingJpa.save(bikeBooking);
+        if(booking!=null){
+            flag=true;
+        }
+        return flag;
+    }
+
+
+
+    public Set<BookingRecords> OngoingBooking(UUID applicationUserId) {
+
+        ApplicationUser  applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
+                , "ApplicationUser"));
+        List<BikeBooking> bookingOfUser = applicationUser.getBooking().stream()
+                .filter(booking -> validateForCurrentBooking(booking.getTillDate()))
+                .collect(Collectors.toList());
+
+
+
+        Set<BookingRecords> bookingRecordsCollection = bookingOfUser.stream().map(booking -> {
+                    BookingRecords bookingRecords = new BookingRecords();
+                    bookingRecords.setBookingDate(booking.getDateBook());
+                    bookingRecords.setEndBookingDate(booking.getTillDate());
+                    byte[] bike=this.applicationUserRepo.getAllBikes(booking.getBookingId());
+                    UUID uuid =convertBinaryToUUID(bike);
+                    Optional<Bike> bikeOptional =this.bikeRepo.findById(uuid);
+                    bookingRecords.setBike(this.objectMappingService.entityToPojo(bikeOptional.get(), BikeforBookingReturnDto.class));
+                    HashMap<String,Long>time =bookingService.TimeCalculation(booking.getDateBook(),booking.getTillDate() );
+                    bookingRecords.setPickUpLocation(objectMappingService.entityToPojo( bikeOptional.get().getBikeProviderPartner().getCurrentAddress(), CurrentAddressDto.class) );
+                    bookingRecords.setBookedprice(bookingService.priceNeedToPay(time,bikeOptional.get().getPricePerDay()));
+                    bookingRecords.setBookingId(booking.getBookingId());
+
+                    return bookingRecords;
+                }
+        ).collect(Collectors.toSet());
+
+        return bookingRecordsCollection;
+    }
+
 
 }
