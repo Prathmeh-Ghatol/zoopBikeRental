@@ -71,7 +71,7 @@ public class BikeFindingServiceImpl {
         for (Set<Bike> bikeSet : bikesOnRent) {
             for (Bike bike : bikeSet) {
                 Bike bikeAvilable=parseBikeForAvailability(bike, bookDto.getBookingDate(), bookDto.getEndBookingDate()) ;
-                if(bikeAvilable!=null){
+                if(bikeAvilable!=null ){
                     BikeReturnDto bikeReturnDto = objectMappingService.entityToPojo(bikeAvilable, BikeReturnDto.class);
                     allBikes.add(bikeReturnDto);
                 }
@@ -114,10 +114,14 @@ public class BikeFindingServiceImpl {
         LocalDateTime start = booking.getDateBook();
         LocalDateTime end = booking.getTillDate();
 
+        List<Bike> bikes = booking.getBikesBookReg();
+        Bike bike =bikes.get(0);
+
         // Check if the booking overlaps with the specified time range and is not cancelled or non-existent
         // If the booking is cancelled or non-existent, it means the bike is available for booking during that period
-        return start.isBefore(tillBookedDate) && end.isAfter(bookingDate) && (booking.getBooking_Cancelled() == null || booking.getBooking_Cancelled());
+        return start.isBefore(tillBookedDate) && end.isAfter(bookingDate) && !booking.getBooking_Cancelled();
     }
+
 
 
 }

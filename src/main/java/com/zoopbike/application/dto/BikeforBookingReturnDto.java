@@ -33,7 +33,10 @@ public class BikeforBookingReturnDto {
     private Double afterfreeDriveKmChargePerKm;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer freeDriveKm;
-
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Double currentMeterReading;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String licencePlate;
 
 
 

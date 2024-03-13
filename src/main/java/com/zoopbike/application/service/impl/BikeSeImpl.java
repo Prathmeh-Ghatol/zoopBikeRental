@@ -81,7 +81,10 @@ public class BikeSeImpl implements BikeService {
             bikeUpdatBike.setPucValidity(bikeDto.getPucValidity());
             bikeUpdatBike.setUnder_Maintenance(bikeDto.getUnder_Maintenance());
             bikeUpdatBike.setAfterfreeDriveKmChargePerKm(bikeDto.getAfterfreeDriveKmChargePerKm());
+            System.out.println(bike.get().getCurrentMeterReading());
+
             if(bike.get().getCurrentMeterReading()<=bikeDto.getCurrentMeterReading()){
+
             bikeUpdatBike.setCurrentMeterReading(bikeDto.getCurrentMeterReading());
             }else {
                 throw new BadBikeException("Meter Reading is not proper", "bike");
@@ -89,6 +92,7 @@ public class BikeSeImpl implements BikeService {
             bikeUpdatBike.setFreeDriveKm(bikeDto.getFreeDriveKm());
             bikeUpdatBike.setMilage(bikeDto.getMilage());
             bikeUpdatBike.setBikeFreeFuel(bikeDto.getBikeFreeFuel());
+            bikeUpdatBike.setBikeLocked(bikeDto.getBikeLocked());
         } else {
             throw new BadBikeException("Bike is not found with id " + bike, "BIKE");
         }

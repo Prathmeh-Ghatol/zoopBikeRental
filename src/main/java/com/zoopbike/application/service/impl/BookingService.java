@@ -56,15 +56,17 @@ public class BookingService implements BikeBookingService {
     public BookingRecords bookingBike(UUID bikeId, UUID applicationId, BookDto bookDto) {
         ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationId).orElseThrow(() -> new ApplicationUserException("User not exist with this id" + applicationId, "ApplicationUser"));
         Bike bike = this.bikeRepo.findById(bikeId).orElseThrow(() -> new BadBikeException("Bike is not present with " + bikeId, "BIKE"));
-        Boolean isAvilable = bike.getBikeProviderPartner().getIsAvilable();
+//        Boolean isAvilable = bike.getBikeProviderPartner().getIsAvilable();
         if (bike.getBikeProviderPartner().getIsAvilable() == false) {
             throw new BikeProviderPartnerException("This type Bike Provider is not avilable", "BIKE PROVIDER");
         }
         Bike bikeAvibility= this.bikeFindingService.parseBikeForAvailability(bike,bookDto.getBookingDate(),bookDto.getEndBookingDate());
-        if(bikeAvibility==null){
+        if(bikeAvibility==null && bike.getBikeLocked()){
             throw new BookingException("Bike is not avilable for this date", "Bike");
         }
         BikeBooking bikeBookingSaved = null;
+        HashMap<String, Long> timing = TimeCalculation(bookDto.getBookingDate(), bookDto.getEndBookingDate());
+        Double amountNeedToPay= priceNeedToPay(timing,bike.getPricePerDay());
 
         if ( bike.getBikeProviderPartner().getIsAvilable().equals(true)
                 && bike.getUnder_Maintenance().equals(false)) {
@@ -74,7 +76,9 @@ public class BookingService implements BikeBookingService {
             bikeBooking.setApplicationUserBikeBook(Collections.singletonList(applicationUser));
             bikeBooking.setBikesBookReg(Collections.singletonList(bike));
             bikeBooking.setBooking_Cancelled(false);
+            bikeBooking.setBookedprice(amountNeedToPay);
             bikeBookingSaved = this.bikeBookingJpa.save(bikeBooking);
+            bike.setBikeLocked(true);
             this.bikeRepo.save(bike);
 
         } else {
@@ -83,8 +87,6 @@ public class BookingService implements BikeBookingService {
         BookingRecords bookingRecords=new BookingRecords();
         bookingRecords.setBike(this.objectMappingService.entityToPojo(bike, BikeforBookingReturnDto.class));
 
-        HashMap<String, Long> timing = TimeCalculation(bookDto.getBookingDate(), bookDto.getEndBookingDate());
-        Double amountNeedToPay= priceNeedToPay(timing,bike.getPricePerDay());
         bookingRecords.setBookedprice(amountNeedToPay);
         bookingRecords.setBookingDate(bookDto.getBookingDate());
         bookingRecords.setEndBookingDate(bookDto.getEndBookingDate());
@@ -108,7 +110,7 @@ public class BookingService implements BikeBookingService {
             }
 
         Bike bikeAvibility= this.bikeFindingService.parseBikeForAvailability(bike,bookDto.getBookingDate(),bookDto.getEndBookingDate());
-        if(bikeAvibility==null){
+        if(bikeAvibility==null && bike.getBikeLocked()){
             throw new BookingException("Bike is not avilable for this date", "Bike");
         }
             Double pricePerDay = bike.getPricePerDay();

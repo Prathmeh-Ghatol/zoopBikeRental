@@ -289,7 +289,11 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
             }
         }
         if(bookingFound==true) {
-            bikeBooking.setBooking_Cancelled(true);
+           List<Bike> bikes = bikeBooking.getBikesBookReg();
+           Bike bike =bikes.get(0);
+           bike.setBikeLocked(false);
+           bikeRepo.save(bike);
+           bikeBooking.setBooking_Cancelled(true);
         }
         BikeBooking booking=this.bikeBookingJpa.save(bikeBooking);
         if(booking!=null){

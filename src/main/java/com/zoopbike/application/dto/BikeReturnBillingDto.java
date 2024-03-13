@@ -23,4 +23,6 @@ public class BikeReturnBillingDto {
     private Double BookTimePrice;
     private Double afterReturnBikeMeterReading;
     private Double BookingBikeMeterReading;
+    private LocalDateTime bookedDate;
+
 }

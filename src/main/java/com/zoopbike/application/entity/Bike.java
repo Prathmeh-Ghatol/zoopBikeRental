@@ -47,5 +47,6 @@ public class Bike {
     @JsonManagedReference
 //    @JsonBackReference
     private List<BikeBooking>bikeBookings;
+    private  Boolean bikeLocked;
 
 }

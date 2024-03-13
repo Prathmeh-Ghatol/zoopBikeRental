@@ -17,6 +17,7 @@ import com.zoopbike.application.utils.ObjectMappingService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,29 +41,43 @@ public class BikeReturnService {
 
 
 
-        BikeReturnService(ApplicationUserRepo applicationUserRepo, BikeRepo bikeRepo, BikeBookingJpa bikeBookingJpa, BookingService bookingService) {
+        BikeReturnService(ApplicationUserRepo applicationUserRepo, BikeRepo bikeRepo, BikeBookingJpa bikeBookingJpa,
+                          ApplicationUserserviceImpl applicationUserservice,BookingService bookingService,ObjectMappingService mappingService) {
         this.bikeRepo = bikeRepo;
         this.applicationUserRepo = applicationUserRepo;
         this.bikeBookingJpa = bikeBookingJpa;
         this.bookingService = bookingService;
+        this.applicationUserService=applicationUserservice;
+        this.mappingService=mappingService;
     }
 
 public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUserId, BikeReturnDetailsDto bikeReturnDetailsDto) {
         ApplicationUser applicationUser = this.applicationUserRepo.
                 findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("Application User Not Found" + applicationUserId.toString(), "ApplicationUser"));
         Set<BookingRecords> bikeBoooking = applicationUserService.getCurrentBookingOfuser(applicationUserId);
+        Boolean bookingFound=false;
+        System.out.println(bikeBoooking);
         BikeBooking booking = bikeBookingJpa.findById(bookingId).orElseThrow(() -> new BookingException("Booking is not avilable" +
                 bookingId.toString(), " Booking"));
-        BikeReturnBillingDto bikeReturnBillingDto = new BikeReturnBillingDto();
-        if (bikeBoooking.contains(booking) && booking.getBooking_Cancelled().equals(false)) {
-            Bike bike = (Bike) booking.getBikesBookReg();
+        for(BookingRecords bookingRC:bikeBoooking){
+            if(bookingRC.getBookingId()==booking.getBookingId()){
+                bookingFound=true;
+            }
+        }
+            BikeReturnBillingDto bikeReturnBillingDto = new BikeReturnBillingDto();
+        System.out.println(bookingFound);
+        if (bookingFound && booking.getBooking_Cancelled().equals(false)) {
+            List<Bike> bikeALl = booking.getBikesBookReg();
+            Bike bike=bikeALl.get(0);
+            System.out.println(bikeALl);
             priceAfterFreeKm = bike.getAfterfreeDriveKmChargePerKm();
             priceTimeBooked = booking.getPricePaid();
             priceForDay = bike.getPricePerDay();
             if (bike.getCurrentMeterReading() < bikeReturnDetailsDto.getAfterReturnBikeMeterReading()) {
                 meterReadingDiff = bikeReturnDetailsDto.getAfterReturnBikeMeterReading() - bike.getCurrentMeterReading();
-                if (meterReadingDiff > 0) {
-                    throw new BookingException("Meater Reading never  diff will never ", "METER READING");
+                System.out.println(meterReadingDiff);
+                if (meterReadingDiff < 0) {
+                    throw new BookingException("Meter Reading never will negtive ", "METER READING");
                 }
 //                       if(booking.getTillDate().isBefore(bikeReturnDetailsDto.getReturnDate()) ||
 //                               booking.getTillDate().isEqual(bikeReturnDetailsDto.getReturnDate())&&
@@ -74,9 +89,12 @@ public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUs
                 HashMap<String, Long> timing = bookingService.TimeCalculation(booking.getDateBook(), bikeReturnDetailsDto.getReturnDate());
                 Double priceOnDay = this.bookingService.priceNeedToPay(timing, bike.getPricePerDay());
                 if (bike.getFreeDriveKm() < meterReadingDiff) {
-                    priceNeedToPay = priceOnDay + meterReadingDiff * bike.getAfterfreeDriveKmChargePerKm();
+                    Double payForKm=meterReadingDiff-bike.getFreeDriveKm();
+                    priceNeedToPay = priceOnDay + payForKm * bike.getAfterfreeDriveKmChargePerKm();
+                System.out.println( " system" +priceNeedToPay);
+                }else {
+                    priceNeedToPay = priceOnDay;
                 }
-                priceNeedToPay = priceOnDay;
                 bikeReturnBillingDto.setPriceToPay(priceNeedToPay);
                 bikeReturnBillingDto.setReturnDateAsPerBooking(booking.getTillDate());
                 bikeReturnBillingDto.setAfterReturnBikeMeterReading(bikeReturnDetailsDto.getAfterReturnBikeMeterReading());
@@ -86,22 +104,24 @@ public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUs
                 bikeReturnBillingDto.setReturnDate(bikeReturnDetailsDto.getReturnDate());
                 bikeReturnBillingDto.setBookTimePrice(booking.getBookedprice());
                 bikeReturnBillingDto.setFreeKm(Double.valueOf(bike.getFreeDriveKm()));
-
+                bikeReturnBillingDto.setDrivenKm(meterReadingDiff);
+                bikeReturnBillingDto.setBookedDate(booking.getDateBook());
                 bike.setCurrentMeterReading(bikeReturnDetailsDto.getAfterReturnBikeMeterReading());
+                bike.setBikeLocked(false);
                 this.bikeRepo.save(bike);
                 booking.setPricePaid(priceNeedToPay);
                 booking.setKmDriven(meterReadingDiff);
                 booking.setActualReturnDate(bikeReturnDetailsDto.getReturnDate());
                 this.bikeBookingJpa.save(booking);
-                bikeReturnBillingDto.setAfterReturnBikeMeterReading(meterReadingDiff);
+                bikeReturnBillingDto.setAfterReturnBikeMeterReading(bikeReturnDetailsDto.getAfterReturnBikeMeterReading());
                 return bikeReturnBillingDto;
             }
+            throw new BikeReturnException("Bike Already Return","bike");
         }
         else {
             throw new BikeReturnException("Your Booking is not present","BikeBooking");
 
         }
-        return null;
 
 }
 }

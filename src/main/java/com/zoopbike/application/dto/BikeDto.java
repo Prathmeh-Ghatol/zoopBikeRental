@@ -29,6 +29,8 @@ public class BikeDto {
     private Double pricePerDay;
     private BikeType bikeType;
     private Double bikeFreeFuel;
+    private  Boolean bikeLocked;
+
 
 
 }

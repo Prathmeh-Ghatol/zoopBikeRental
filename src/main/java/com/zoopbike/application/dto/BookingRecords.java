@@ -26,5 +26,7 @@ public class BookingRecords {
         private Double pricePaid;
         private Double kmDriven;
         private CurrentAddressDto pickUpLocation;
+        private String licencePlate;
+
 
 }

@@ -80,6 +80,14 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
     }
+    @ExceptionHandler(value = BikeReturnException.class)
+    public ResponseEntity<Map<String,String>> BikeReturnExcpetion(BikeReturnException bikeReturnException) {
+        exceptionMap = new HashMap<>();
+        exceptionMap.put("Message", bikeReturnException.getMessage());
+        exceptionMap.put("Entity", bikeReturnException.getEntity());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
+    }
         //    @ExceptionHandler(value = Loca.class)
 //    public ResponseEntity<Map<String,String>> BikeSearchingException(BikeSearchingException bikeSearchingException){
 //        exceptionMap=new HashMap<>();
