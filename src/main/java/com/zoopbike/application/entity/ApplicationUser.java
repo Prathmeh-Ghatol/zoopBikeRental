@@ -40,6 +40,8 @@ public class ApplicationUser {
    // @JsonBackReference
     private List<BikeBooking>Booking;
 
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "applicationUser")
+    private  List<Review>reviews;
 
 
 }

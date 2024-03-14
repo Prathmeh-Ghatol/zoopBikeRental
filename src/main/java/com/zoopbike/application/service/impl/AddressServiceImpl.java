@@ -6,7 +6,7 @@ import com.zoopbike.application.entity.ApplicationUser;
 import com.zoopbike.application.entity.BikeProviderPartner;
 import com.zoopbike.application.entity.CurrentAddress;
 import com.zoopbike.application.entity.Permanentaddress;
-import com.zoopbike.application.exception.ApplicationUserException;
+import com.zoopbike.application.exception.ReviewException;
 import com.zoopbike.application.exception.BikeProviderPartnerException;
 import com.zoopbike.application.repo.ApplicationUserRepo;
 import com.zoopbike.application.repo.BikePartnerRepo;
@@ -94,7 +94,7 @@ public class AddressServiceImpl implements com.zoopbike.application.service.Addr
 
         ApplicationUser applicationUser= this.applicationUserRepo.findApplicationUserByEmail(email);
         if(applicationUser==null){
-            throw new ApplicationUserException("The user not found with email id " , email);
+            throw new ReviewException("The user not found with email id " , email);
         }
         Permanentaddress permanentaddress=applicationUser.getPermanentaddress();
         Permanentaddress permenetAddressDtoUpdate=this.objectMappingService.pojoToentity(permenetAddressDto,Permanentaddress.class);
@@ -121,7 +121,7 @@ public class AddressServiceImpl implements com.zoopbike.application.service.Addr
     public CurrentAddressDto updatecurrentAddressForApplicationUser(CurrentAddressDto currentAddressDto, String email) {
         ApplicationUser applicationUser= this.applicationUserRepo.findApplicationUserByEmail(email);
         if(applicationUser==null){
-            throw new ApplicationUserException("The user not found with email id " , email);
+            throw new ReviewException("The user not found with email id " , email);
         }
         CurrentAddress currentAddress=applicationUser.getCurrentAddress();
         CurrentAddress currentAddressUpdate=this.objectMappingService.pojoToentity(currentAddressDto,CurrentAddress.class);

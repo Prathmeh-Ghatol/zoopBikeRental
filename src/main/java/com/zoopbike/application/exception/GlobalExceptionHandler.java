@@ -1,6 +1,5 @@
 package com.zoopbike.application.exception;
 
-import com.zoopbike.application.dto.BikeProviderPartnerDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,8 +14,8 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     private Map<String , String>exceptionMap;
 
-    @ExceptionHandler(value = ApplicationUserException.class)
-    public ResponseEntity<Map<String,String>> applicationUserException(ApplicationUserException applicationUserException){
+    @ExceptionHandler(value = ReviewException.class)
+    public ResponseEntity<Map<String,String>> applicationUserException(ReviewException applicationUserException){
         exceptionMap=new HashMap<>();
         exceptionMap.put("Error Message", applicationUserException.getMessage());
         exceptionMap.put("Entity",applicationUserException.getEntity());

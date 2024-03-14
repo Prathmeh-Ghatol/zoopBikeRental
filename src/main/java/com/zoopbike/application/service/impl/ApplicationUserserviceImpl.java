@@ -2,7 +2,7 @@ package com.zoopbike.application.service.impl;
 
 import com.zoopbike.application.dto.*;
 import com.zoopbike.application.entity.*;
-import com.zoopbike.application.exception.ApplicationUserException;
+import com.zoopbike.application.exception.ReviewException;
 import com.zoopbike.application.exception.BadaddressException;
 import com.zoopbike.application.exception.BookingException;
 import com.zoopbike.application.repo.*;
@@ -20,7 +20,6 @@ import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
 
 @Service
 public class ApplicationUserserviceImpl implements ApplicationUserService {
@@ -103,7 +102,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
     public ApplicationUserDto update(String email,  ApplicationUserDto applicationUserDto) {
         ApplicationUser applicationUser = this.applicationUserRepo.findApplicationUserByEmail(email);
         if (applicationUser == null) {
-            throw new ApplicationUserException("User Not found with this email", email);
+            throw new ReviewException("User Not found with this email", email);
         }
         CurrentAddress currentAddress=null;
         Permanentaddress permanentaddress=null;
@@ -128,7 +127,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
         ApplicationUser applicationUser = this.applicationUserRepo.findApplicationUserByEmail(email);
         Boolean deleteConfirmationFlag = false;
         if (applicationUser == null) {
-            throw new ApplicationUserException("User Not found with this email", email);
+            throw new ReviewException("User Not found with this email", email);
         }
         this.applicationUserRepo.delete(applicationUser);
 
@@ -166,13 +165,13 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
                 applicationUserDto.setPermenetAddressDto(permanentaddressDto);
                 return applicationUserDto;
             } else {
-                throw new ApplicationUserException("User not found !!", email);
+                throw new ReviewException("User not found !!", email);
             }
         }
 
         Optional<ApplicationUser> applicationUser_obj2 = this.applicationUserRepo.findById(uuid);
         if (applicationUser_obj2 == null) {
-            throw new ApplicationUserException("User not found !!", " " + uuid);
+            throw new ReviewException("User not found !!", " " + uuid);
         }
         applicationUser = applicationUser_obj2.get();
         applicationUserDto = this.objectMappingService.entityToPojo(applicationUser, ApplicationUserDto.class);
@@ -211,7 +210,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
 
     public Set<BookingRecords> getAllBookingOfuser(UUID applicationUserId) {
 
-      ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
+      ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ReviewException("The user not exist with the id " + applicationUserId
                        , "ApplicationUser"));
         List<BikeBooking> bookingOfUser = applicationUser.getBooking();
 
@@ -242,7 +241,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
     }
     public Set<BookingRecords> getCurrentBookingOfuser(UUID applicationUserId) {
 
-        ApplicationUser  applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
+        ApplicationUser  applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ReviewException("The user not exist with the id " + applicationUserId
                 , "ApplicationUser"));
         List<BikeBooking> bookingOfUser = applicationUser.getBooking().stream()
                 .filter(booking -> validateForCurrentBooking(booking.getTillDate()))
@@ -277,7 +276,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
     public Boolean cancelledBooking(UUID bookingId,UUID applicationId){
         Boolean flag=false;
         BikeBooking bikeBooking=this.bikeBookingJpa.findById(bookingId).orElseThrow(()-> new BookingException("Booking is not found with boooking Id " + bookingId , "BOOKING"));
-        ApplicationUser applicationUser =this.applicationUserRepo.findById(applicationId).orElseThrow(()-> new ApplicationUserException("Application User Not Found"  ,"ApplicationUser"));
+        ApplicationUser applicationUser =this.applicationUserRepo.findById(applicationId).orElseThrow(()-> new ReviewException("Application User Not Found"  ,"ApplicationUser"));
         Set<BookingRecords>allBookings=getCurrentBookingOfuser(applicationId);
         Boolean bookingFound=false;
         for(BookingRecords bookingRecords:allBookings){
@@ -306,7 +305,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
 
     public Set<BookingRecords> OngoingBooking(UUID applicationUserId) {
 
-        ApplicationUser  applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("The user not exist with the id " + applicationUserId
+        ApplicationUser  applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() -> new ReviewException("The user not exist with the id " + applicationUserId
                 , "ApplicationUser"));
         List<BikeBooking> bookingOfUser = applicationUser.getBooking().stream()
                 .filter(booking -> validateForCurrentBooking(booking.getTillDate()))

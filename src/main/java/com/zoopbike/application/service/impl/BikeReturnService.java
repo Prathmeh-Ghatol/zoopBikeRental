@@ -7,7 +7,7 @@ import com.zoopbike.application.dto.BookingRecords;
 import com.zoopbike.application.entity.ApplicationUser;
 import com.zoopbike.application.entity.Bike;
 import com.zoopbike.application.entity.BikeBooking;
-import com.zoopbike.application.exception.ApplicationUserException;
+import com.zoopbike.application.exception.ReviewException;
 import com.zoopbike.application.exception.BikeReturnException;
 import com.zoopbike.application.exception.BookingException;
 import com.zoopbike.application.repo.ApplicationUserRepo;
@@ -53,7 +53,7 @@ public class BikeReturnService {
 
 public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUserId, BikeReturnDetailsDto bikeReturnDetailsDto) {
         ApplicationUser applicationUser = this.applicationUserRepo.
-                findById(applicationUserId).orElseThrow(() -> new ApplicationUserException("Application User Not Found" + applicationUserId.toString(), "ApplicationUser"));
+                findById(applicationUserId).orElseThrow(() -> new ReviewException("Application User Not Found" + applicationUserId.toString(), "ApplicationUser"));
         Set<BookingRecords> bikeBoooking = applicationUserService.getCurrentBookingOfuser(applicationUserId);
         Boolean bookingFound=false;
         System.out.println(bikeBoooking);
@@ -123,6 +123,6 @@ public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUs
 
         }
 
-        
+
 }
 }

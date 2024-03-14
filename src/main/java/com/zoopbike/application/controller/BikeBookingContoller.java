@@ -50,4 +50,10 @@ public class BikeBookingContoller {
         return ResponseEntity.status(HttpStatus.OK).body(returnDetails);
     }
 
+
+    @GetMapping(value = "/get/booking/id/{bookingId}")
+    public ResponseEntity<BookingRecords>getBooking(@PathVariable("bookingId") UUID bookingId){
+        return  ResponseEntity.ok(this.bookingService.getBookingRecordsById(bookingId));
+    }
+
 }

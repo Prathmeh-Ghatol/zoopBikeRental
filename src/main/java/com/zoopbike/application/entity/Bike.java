@@ -48,5 +48,7 @@ public class Bike {
 //    @JsonBackReference
     private List<BikeBooking>bikeBookings;
     private  Boolean bikeLocked;
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "bike")
+    private List<Review>review;
 
 }

@@ -5,7 +5,7 @@ import com.zoopbike.application.entity.ApplicationUser;
 import com.zoopbike.application.entity.Bike;
 import com.zoopbike.application.entity.BikeBooking;
 import com.zoopbike.application.entity.BikeProviderPartner;
-import com.zoopbike.application.exception.ApplicationUserException;
+import com.zoopbike.application.exception.ReviewException;
 import com.zoopbike.application.exception.BadBikeException;
 import com.zoopbike.application.exception.BikeProviderPartnerException;
 import com.zoopbike.application.exception.BookingException;
@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.zeroDay;
 import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.zeroHour;
@@ -54,7 +51,7 @@ public class BookingService implements BikeBookingService {
 
     @Override
     public BookingRecords bookingBike(UUID bikeId, UUID applicationId, BookDto bookDto) {
-        ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationId).orElseThrow(() -> new ApplicationUserException("User not exist with this id" + applicationId, "ApplicationUser"));
+        ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationId).orElseThrow(() -> new ReviewException("User not exist with this id" + applicationId, "ApplicationUser"));
         Bike bike = this.bikeRepo.findById(bikeId).orElseThrow(() -> new BadBikeException("Bike is not present with " + bikeId, "BIKE"));
 //        Boolean isAvilable = bike.getBikeProviderPartner().getIsAvilable();
         if (bike.getBikeProviderPartner().getIsAvilable() == false) {
@@ -100,7 +97,7 @@ public class BookingService implements BikeBookingService {
 
     public BikeEstimadePaymentBeforeBooked paymentDetails(UUID bikeId, UUID applicationId, BookDto bookDto) {
 
-        ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationId).orElseThrow(() -> new ApplicationUserException("User not exist with this id" + applicationId, "ApplicationUser"));
+        ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationId).orElseThrow(() -> new ReviewException("User not exist with this id" + applicationId, "ApplicationUser"));
         Bike bike = this.bikeRepo.findById(bikeId).orElseThrow(() -> new BadBikeException("Bike is not present with " + bikeId, "BIKE"));
         if (bike.getBikeProviderPartner().getIsAvilable() == true && bike.getUnder_Maintenance().equals(false))
     {
@@ -161,6 +158,24 @@ public class BookingService implements BikeBookingService {
         return amountNeedToPay;
     }
 
+    public BookingRecords getBookingRecordsById(UUID bookingid){
+        BikeBooking booking=this.bikeBookingJpa.findById(bookingid).orElseThrow(()-> new BookingException("Booking is not found with this id","Booking Id"));
+        List<Bike>bikes =booking.getBikesBookReg();
+         Bike bike  =bikes.get(0);
+         List<ApplicationUser> user=booking.getApplicationUserBikeBook();
+             ApplicationUser applicationUser = user.get(0);
+             BookingRecords bookingRecords=new BookingRecords();
+             bookingRecords.setBike(this.objectMappingService.entityToPojo(bike, BikeforBookingReturnDto.class));
+             bookingRecords.setBookedprice(booking.getBookedprice());
+             bookingRecords.setBookingDate(booking.getDateBook());
+             bookingRecords.setBookingId(booking.getBookingId());
+             bookingRecords.setEndBookingDate(booking.getTillDate());
+             bookingRecords.setKmDriven(booking.getKmDriven());
+             bookingRecords.setLicencePlate(bike.getLicencePlate());
+             bookingRecords.setPickUpLocation(this.objectMappingService.entityToPojo(bike.getBikeProviderPartner().getCurrentAddress(),CurrentAddressDto.class));
+             bookingRecords.setPricePaid(booking.getPricePaid());
+             return bookingRecords;
+    }
 
 
     }
