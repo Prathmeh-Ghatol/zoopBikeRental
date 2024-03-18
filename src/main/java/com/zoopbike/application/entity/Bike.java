@@ -7,10 +7,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.zoopbike.application.utils.BikeType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -50,5 +49,16 @@ public class Bike {
     private  Boolean bikeLocked;
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "bike")
     private List<Review>review;
+    private Set<String>bikeImages;
+
+    @Column(nullable = false)
+    private String BIKE_RC;
+
+    @Column(nullable = false)
+    private String BIKE_PUC;
+
+    @Column(nullable = false)
+    private String BIKE_INSURANCE;
+
 
 }

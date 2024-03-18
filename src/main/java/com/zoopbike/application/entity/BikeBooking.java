@@ -57,6 +57,4 @@ public class BikeBooking {
     private Boolean Booking_Cancelled;
     private LocalDateTime actualReturnDate;
 
-
-
 }

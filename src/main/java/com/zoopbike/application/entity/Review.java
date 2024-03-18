@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -16,17 +17,16 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Review {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO) // Corrected GenerationType
+    @GeneratedValue(strategy = GenerationType.UUID) // Corrected GenerationType
     private UUID reviewId;
-
     @ManyToOne
     private ApplicationUser applicationUser;
-
     @ManyToOne
     private Bike bike;
-
     private String commentRealtedToBike;
-
+    private LocalDateTime time;
     private String commentRealtedBikeProvider;
+    private LocalDateTime localDateTime;
+    private LocalDateTime updatedCommentTime;
 
 }

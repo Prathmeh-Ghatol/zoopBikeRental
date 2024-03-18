@@ -43,5 +43,15 @@ public class BikeProviderPartner {
 
     private Boolean isAvilable;
 
+    @Column(nullable = false)
+    private  String profileImage;
+
+    @Column(nullable = false)
+    private String adhar;
+
+    @Column(nullable = false)
+    private String drivingLicence;
+
+
 
 }

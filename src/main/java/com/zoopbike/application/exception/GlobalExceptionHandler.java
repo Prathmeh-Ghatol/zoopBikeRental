@@ -87,6 +87,14 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
     }
+      @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<Map<String,String>> IllegalArgumentException(IllegalArgumentException illegalArgumentException) {
+        exceptionMap = new HashMap<>();
+        exceptionMap.put("Message", illegalArgumentException.getMessage());
+//        exceptionMap.put("Entity", illegalArgumentException.getEntity());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionMap);
+    }
         //    @ExceptionHandler(value = Loca.class)
 //    public ResponseEntity<Map<String,String>> BikeSearchingException(BikeSearchingException bikeSearchingException){
 //        exceptionMap=new HashMap<>();
