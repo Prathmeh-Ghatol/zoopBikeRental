@@ -5,11 +5,16 @@ import com.zoopbike.application.dto.BikeReturnDto;
 import com.zoopbike.application.dto.GenricPage;
 import com.zoopbike.application.service.impl.BikeSeImpl;
 import com.zoopbike.application.service.impl.BookingService;
+import com.zoopbike.application.service.impl.S3ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defaultApplicationPageSize;
@@ -19,6 +24,7 @@ import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.d
 
 @RequestMapping(value = "/bike/service")
 public class BikeController {
+
 
     @Autowired
     BikeSeImpl bikeService;
@@ -56,5 +62,6 @@ public class BikeController {
         GenricPage<BikeReturnDto>bikes =this.bikeService.getAllBikeOfBikeVender(bikeProviderEmail,pageNo,pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(bikes);
     }
+
 
 }

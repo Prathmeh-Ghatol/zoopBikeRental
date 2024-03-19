@@ -43,13 +43,10 @@ public class ApplicationUser {
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "applicationUser")
     private  List<Review>reviews;
 
-    @Column(nullable = false)
     private  String profileImage;
 
-    @Column(nullable = false)
     private String adhar;
 
-    @Column(nullable = false)
     private String drivingLicence;
 
 }

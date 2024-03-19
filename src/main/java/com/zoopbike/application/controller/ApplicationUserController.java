@@ -9,15 +9,18 @@ import com.zoopbike.application.entity.BikeBooking;
 import com.zoopbike.application.repo.BikeBookingJpa;
 import com.zoopbike.application.service.ApplicationUserService;
 import com.zoopbike.application.service.impl.ApplicationUserserviceImpl;
+import com.zoopbike.application.service.impl.S3ServiceImpl;
+import com.zoopbike.application.service.impl.S3service;
 import com.zoopbike.application.utils.zoopBikeRentalApplicationConstant;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -25,21 +28,26 @@ import java.util.*;
 public class ApplicationUserController {
 
     @Autowired
-    ApplicationUserserviceImpl applicationUserService;
-    @Autowired
-    zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant;
+    private ApplicationUserserviceImpl applicationUserService;
 
     @Autowired
-    BikeBookingJpa bikeBookingJpa;
+    private zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant;
+
+    @Autowired
+    private S3ServiceImpl s3service;
+
+    @Autowired
+    private BikeBookingJpa bikeBookingJpa;
+
     @PostMapping(value = "/register")
-    ResponseEntity<ApplicationUserDto> register(@RequestBody @Valid ApplicationUserDto applicationUserDto) {
+    private ResponseEntity<ApplicationUserDto> register(@RequestBody @Valid ApplicationUserDto applicationUserDto) {
         ApplicationUserDto applicationUser = this.applicationUserService.registerApplicationUser(applicationUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationUser);
     }
 
     @PutMapping(value = "/update/{email}")
     ResponseEntity<ApplicationUserDto> update(@PathVariable("email") String email,
-                                              @Valid  @RequestBody ApplicationUserDto applicationUserDto) {
+                                              @Valid @RequestBody ApplicationUserDto applicationUserDto) {
         ApplicationUserDto applicationUser = this.applicationUserService.update(email, applicationUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationUser);
     }
@@ -73,20 +81,135 @@ public class ApplicationUserController {
     }
 
 
-
-
     @GetMapping(value = "/get/all/bookings/{userId}")
-    public ResponseEntity<Set<BookingRecords>> getAllBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId){
-       Set<BookingRecords> allBookingOfuser= applicationUserService.getAllBookingOfuser( applicationUserId);
-       return  ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
-
-    }@GetMapping(value = "/get/current/booking/{userId}")
-    public ResponseEntity<Set<BookingRecords>> getCurrentBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId){
-       Set<BookingRecords> allBookingOfuser= applicationUserService.getCurrentBookingOfuser( applicationUserId);
-       return  ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
+    public ResponseEntity<Set<BookingRecords>> getAllBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId) {
+        Set<BookingRecords> allBookingOfuser = applicationUserService.getAllBookingOfuser(applicationUserId);
+        return ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
 
     }
 
+    @GetMapping(value = "/get/current/booking/{userId}")
+    public ResponseEntity<Set<BookingRecords>> getCurrentBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId) {
+        Set<BookingRecords> allBookingOfuser = applicationUserService.getCurrentBookingOfuser(applicationUserId);
+        return ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
+
+    }
+
+    @PostMapping("/{userId}/image/upload")
+    public ResponseEntity<String> uploadImage(@PathVariable("userId") UUID userId, @RequestParam("file") MultipartFile file,
+                                              @RequestParam("imageType") String imageTypeToUpload) throws IOException {
+        try {
+            s3service.uploadImagesRelatedToUser(userId, file, imageTypeToUpload);
+            return ResponseEntity.ok("Image uploaded successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image.");
+        }
+    }
+    @PutMapping("/{userId}/image/update/upload")
+    public ResponseEntity<String> updateImage(@PathVariable("userId") UUID userId, @RequestParam("file") MultipartFile file,
+                                              @RequestParam("imageType") String imageTypeToUpload) throws IOException {
+        try {
+            s3service.updateProfileAndDocumentsOfApplicationUser(userId,  imageTypeToUpload,file);
+            return ResponseEntity.ok("Image uploaded successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image.");
+        }
+    }
+
+    @GetMapping("{userId}/image/download/profile/{profile}")
+    public ResponseEntity<byte[]> downloadProfile(
+            @PathVariable("userId") UUID userId,
+            @PathVariable("profile") String docType)
+    {        try {
+            byte[] document = s3service.downloadProfileAndDocumentsOfApplicationUser(userId, docType);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            return new ResponseEntity<>(document, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    @GetMapping("{userId}/image/download/Licence/{Licence}")
+    public ResponseEntity<byte[]> downloadRtoLicence(
+            @PathVariable("userId") UUID userId,
+            @PathVariable("Licence") String docType)
+    {        try {
+            byte[] document = s3service.downloadProfileAndDocumentsOfApplicationUser(userId, docType);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            return new ResponseEntity<>(document, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    @GetMapping("{userId}/image/download/Adhar/{Adhar}")
+    public ResponseEntity<byte[]> downloadAdhar(
+            @PathVariable("userId") UUID userId,
+            @PathVariable("Adhar") String docType)
+    {
+        try {
+            byte[] document = s3service.downloadProfileAndDocumentsOfApplicationUser(userId, docType);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            return new ResponseEntity<>(document, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
+    @DeleteMapping("{userId}/image/delete/Licence")
+    public ResponseEntity<String> deleteLicence(@PathVariable("userId") UUID userId) {
+        try {
+            s3service.deleteProfileAndDocumentsOfApplicationUser(userId, "Rto_Licence");
+            return ResponseEntity.ok("Document deleted successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete document.");
+        }
+    }
+    @DeleteMapping("{userId}/image/delete/Adhar")
+    public ResponseEntity<String> deleteAdhar(@PathVariable("userId") UUID userId) {
+        try {
+            s3service.deleteProfileAndDocumentsOfApplicationUser(userId, "Aadhar");
+            return ResponseEntity.ok("Document deleted successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete document.");
+        }
+    }
+    @DeleteMapping("{userId}/image/delete/Profile")
+    public ResponseEntity<String> deleteProfile(@PathVariable("userId") UUID userId) {
+        try {
+            s3service.deleteProfileAndDocumentsOfApplicationUser(userId, "Profile");
+            return ResponseEntity.ok("Document deleted successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete document.");
+        }
+    }
+
+    @PutMapping("/{applicationUserId}/update")
+    public ResponseEntity<String> updateDocument(
+            @PathVariable UUID applicationUserId,
+            @RequestParam("documentType") String documentType,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            s3service.updateProfileAndDocumentsOfApplicationUser(applicationUserId, documentType, file);
+            return ResponseEntity.ok("Document updated successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update document.");
+        }
+    }
 
 
 }

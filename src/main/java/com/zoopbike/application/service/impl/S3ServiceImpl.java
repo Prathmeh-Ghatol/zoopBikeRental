@@ -81,7 +81,7 @@ public class S3ServiceImpl {
         } else if (property == "Rto_Licence") {
             applicationUser.setDrivingLicence(fileName);
         } else if (property == "Aadhar") {
-            applicationUser.setDrivingLicence(fileName);
+            applicationUser.setAdhar(fileName);
         } else {
             throw new IllegalArgumentException("Invalid image type: " + imageTypeToUpload);
         }
@@ -120,7 +120,7 @@ public class S3ServiceImpl {
         } else if (property == "Rto_Licence") {
             bikeProviderPartner.setDrivingLicence(fileName);
         } else if (property == "Aadhar") {
-            bikeProviderPartner.setDrivingLicence(fileName);
+            bikeProviderPartner.setAdhar(fileName);
         } else {
             throw new IllegalArgumentException("Invalid image type: " + imageTypeToUpload);
         }
@@ -169,7 +169,7 @@ public class S3ServiceImpl {
     }
 
     /***download**/
-    public byte[] downloaProfileAndDocumentsOfApplicationUser(UUID applicationUserId, String DocumentType) throws IOException {
+    public byte[] downloadProfileAndDocumentsOfApplicationUser(UUID applicationUserId, String DocumentType) throws IOException {
         ApplicationUser applicationUser = this.applicationUserRepo.findById(applicationUserId).orElseThrow(() ->
                 new ApplicationUserException("Application User Not Found with ID", applicationUserId.toString()));
 
@@ -192,8 +192,9 @@ public class S3ServiceImpl {
                 break;
             case "Aadhar":
                 userId = applicationUser.getApplicationUserId();
-                fileName = applicationUser.getProfileImage();
+                fileName = applicationUser.getAdhar();
                 path = USER_IMAGES_PATH + userId + "/adhar/" + fileName;
+                System.out.println("path " +path);
                 s3Object = this.s3BucketConfig.amazonS3().getObject(bucketName, path);
         }
         S3ObjectInputStream stream = s3Object.getObjectContent();
@@ -241,7 +242,7 @@ public class S3ServiceImpl {
         } else if (property == "Rto_Licence") {
             applicationUser.setDrivingLicence(null);
         } else if (property.equals("Aadhar")) {
-            applicationUser.setDrivingLicence(null);
+            applicationUser.setAdhar(null);
         } else {
             throw new IllegalArgumentException("Invalid image type: " + documentType);
         }
@@ -322,7 +323,7 @@ public class S3ServiceImpl {
                 break;
             case "Aadhar":
                 userId = bikeProviderPartner.getBikeProviderPartnerId();
-                fileName = bikeProviderPartner.getProfileImage();
+                fileName = bikeProviderPartner.getAdhar();
                 path = BIKEPROVIDER_IMAGES_PATH + userId + "/adhar/" + fileName;
                 s3Object = this.s3BucketConfig.amazonS3().getObject(bucketName, path);
         }
@@ -427,6 +428,7 @@ public class S3ServiceImpl {
         // Save the updated ApplicationUser entity
         this.bikePartnerRepo.save(bikeProviderPartner);
     }
+
 
 }
 
