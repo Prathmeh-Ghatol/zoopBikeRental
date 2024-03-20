@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -133,7 +135,7 @@ public class S3ServiceImpl {
         String path = BIKE_IMG + bikeId + "/";
         Set<String> images = new HashSet<>();
         for (MultipartFile file : files) {
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String fileName =file.getOriginalFilename();
             String fullPath = path + fileName;
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fullPath, file.getInputStream(), null);
             s3BucketConfig.amazonS3().putObject(putObjectRequest);
@@ -142,6 +144,55 @@ public class S3ServiceImpl {
         bike.setBikeImages(images);
         this.bikeRepo.save(bike);
     }
+    public Set<byte[]> downloadBikeImages(UUID bikeId) throws IOException {
+        Bike bike = this.bikeRepo.findById(bikeId).orElseThrow(() -> new BadBikeException("Bike is not present ", bikeId.toString()));
+        Set<String> imageNames = bike.getBikeImages();
+        Set<byte[]> imagesData = new HashSet<>();
+
+        for (String imageName : imageNames) {
+            String path = BIKE_IMG + bikeId + "/" + imageName;
+            S3Object s3Object = s3BucketConfig.amazonS3().getObject(bucketName, path);
+            S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
+            byte[] imageData = IOUtils.toByteArray(objectInputStream);
+            imagesData.add(imageData);
+            objectInputStream.close(); // Close the input stream after reading the image data
+        }
+
+        return imagesData;
+    }
+    public Set<byte[]> update (UUID bikeId) throws IOException {
+        Bike bike = this.bikeRepo.findById(bikeId)
+                .orElseThrow(() -> new BadBikeException("Bike is not present ", bikeId.toString()));
+        Set<String> imageNames = bike.getBikeImages();
+        Set<byte[]> imagesData = new HashSet<>();
+
+        for (String imageName : imageNames) {
+            String path = BIKE_IMG + bikeId + "/" + imageName;
+            S3Object s3Object = null;
+            S3ObjectInputStream objectInputStream = null;
+            try {
+                s3Object = s3BucketConfig.amazonS3().getObject(bucketName, path);
+                objectInputStream = s3Object.getObjectContent();
+                byte[] imageData = IOUtils.toByteArray(objectInputStream);
+                imagesData.add(imageData);
+            } catch (IOException e) {
+                // Handle or log the exception
+                e.printStackTrace();
+            } finally {
+                if (objectInputStream != null) {
+                    try {
+                        objectInputStream.close();
+                    } catch (IOException e) {
+                        // Handle or log the exception
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        return imagesData;
+    }
+
 
     public void bikeDocumentUpload(UUID bikeId, MultipartFile file, String documentType) throws IOException {
         Bike bike = this.bikeRepo.findById(bikeId).orElseThrow(() -> new BadBikeException("Bike is not present with bike id", bikeId.toString()));

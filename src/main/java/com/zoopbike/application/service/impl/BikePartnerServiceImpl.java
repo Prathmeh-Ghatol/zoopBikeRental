@@ -98,25 +98,31 @@ public class BikePartnerServiceImpl implements BikePartnerService {
 
     @Override
     public Boolean deregister(UUID id) {
-        Optional<BikeProviderPartner> bikeProviderPartner = this.bikePartnerRepo.findById(id);
-        Boolean removeFlag = false;
-        if (!bikeProviderPartner.isEmpty()) {
-            bikePartnerRepo.deleteById(id);
-            Optional<BikeProviderPartner> bikeProviderPartnerAfterRemove = this.bikePartnerRepo.findById(id);
-            if (!bikeProviderPartnerAfterRemove.isEmpty()) {
-                removeFlag = true;
+            Optional<BikeProviderPartner> bikeProviderPartnerOptional = this.bikePartnerRepo.findById(id);
+            if (bikeProviderPartnerOptional.isPresent()) {
+                BikeProviderPartner bikeProviderPartner = bikeProviderPartnerOptional.get();
+                this.bikePartnerRepo.deleteById(id);
+                // Remove from cache
+                cacheStore.bikeProviderPartnerMap.remove(bikeProviderPartner.getEmail());
+                // Check if the entity is still present after deletion
+                return !this.bikePartnerRepo.findById(id).isPresent();
             }
+            return false;
         }
-        return removeFlag;
-    }
 
-    public BikeProviderPartnerDto getBikeProviderPartnerByEmailorVenderId(String email, UUID bikeproviderVenderUUID) {
+
+        public BikeProviderPartnerDto getBikeProviderPartnerByEmailorVenderId(String email, UUID bikeproviderVenderUUID) {
         BikeProviderPartner bikeProviderPartner = null;
         if (email != null) {
             bikeProviderPartner = cacheStore.bikeProviderPartnerMap.get(email);
             if (bikeProviderPartner != null && bikeproviderVenderUUID.equals(null)) {
-                return this.mappingService.entityToPojo(bikeProviderPartner, BikeProviderPartnerDto.class);
-            } else if (bikeProviderPartner == null) {
+
+                BikeProviderPartnerDto bikeProviderPartnerDto=mappingService.entityToPojo(bikeProviderPartner, BikeProviderPartnerDto.class);
+                bikeProviderPartnerDto.setCurrentAddressDto(this.mappingService.entityToPojo(bikeProviderPartner.getCurrentAddress(),CurrentAddressDto.class));
+                bikeProviderPartnerDto.setPermenetAddressDto(this.mappingService.entityToPojo(bikeProviderPartner.getPermanentaddress(),PermenetAddressDto.class));
+                return bikeProviderPartnerDto;
+            }
+            else if (bikeProviderPartner == null) {
                 bikeProviderPartner = this.bikePartnerRepo.findBikeProviderPartner(email);
                 CurrentAddress currentAddress = bikeProviderPartner.getCurrentAddress();
                 CurrentAddressDto currentAddressDto = this.mappingService.entityToPojo(currentAddress, CurrentAddressDto.class);
@@ -126,6 +132,7 @@ public class BikePartnerServiceImpl implements BikePartnerService {
 
                 bikeProviderPartnerDto.setCurrentAddressDto(currentAddressDto);
                 bikeProviderPartnerDto.setPermenetAddressDto(permenetAddressDto);
+                cacheStore.bikeProviderPartnerMap.put(bikeProviderPartner.getEmail(),bikeProviderPartner);
                 return bikeProviderPartnerDto;
 
             } else {
