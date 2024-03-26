@@ -9,6 +9,7 @@ import com.zoopbike.application.service.impl.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,7 +25,8 @@ public class BikeBookingContoller {
     @Autowired
     ApplicationUserserviceImpl applicationUserservice;
     @PostMapping(value = "/estimated/bikeId/{bikeId}/ApplicationUserId/{ApplicationUserId}")
-   public ResponseEntity<BikeEstimadePaymentBeforeBooked>estimade(@PathVariable("bikeId")UUID uuid,
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
+    public ResponseEntity<BikeEstimadePaymentBeforeBooked>estimade(@PathVariable("bikeId")UUID uuid,
                                           @PathVariable("ApplicationUserId") UUID applicationId
                                          , @RequestBody BookDto bookDot) {
         BikeEstimadePaymentBeforeBooked bikeEstimadePaymentBeforeBooked=bookingService.paymentDetails(uuid, applicationId, bookDot);
@@ -33,6 +35,7 @@ public class BikeBookingContoller {
 
     }
     @PostMapping(value = "/booked/bikeId/{bikeId}/ApplicationUserId/{ApplicationUserId}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<BookingRecords>BookBike(@PathVariable("bikeId")UUID uuid,
                                                @PathVariable("ApplicationUserId") UUID applicationId
             , @RequestBody BookDto bookDot) {
@@ -43,6 +46,7 @@ public class BikeBookingContoller {
     }
 
     @PostMapping(value = "/cancelled/{bookingId}/applicationId/{applicationId}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public  ResponseEntity<Map<String ,Boolean>>cancelledBooking(@PathVariable("bookingId") UUID bookingId ,@PathVariable("applicationId") UUID applicationId){
         Boolean bookingStatus=this.applicationUserservice.cancelledBooking(bookingId,applicationId);
         HashMap<String,Boolean>returnDetails=new HashMap<>();
@@ -52,6 +56,8 @@ public class BikeBookingContoller {
 
 
     @GetMapping(value = "/get/booking/id/{bookingId}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER') and hasRole('ROLE_BIKEPROVIDER_USER') and hasRole('ROLE_ADMIN')")
+
     public ResponseEntity<BookingRecords>getBooking(@PathVariable("bookingId") UUID bookingId){
         return  ResponseEntity.ok(this.bookingService.getBookingRecordsById(bookingId));
     }

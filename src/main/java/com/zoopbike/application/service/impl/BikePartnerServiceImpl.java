@@ -12,11 +12,14 @@ import com.zoopbike.application.utils.CacheStore;
 import com.zoopbike.application.utils.ObjectMappingService;
 import com.zoopbike.application.utils.zoopBikeRentalApplicationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.RoleMaps;
 
 
 @Service
@@ -48,10 +51,13 @@ public class BikePartnerServiceImpl implements BikePartnerService {
                     "BikeProviderPartner");
         }
         BikeProviderPartner bikeProviderPartner = mappingService.pojoToentity(bikeProviderPartnerDto, BikeProviderPartner.class);
+//        bikeProviderPartner.setPassword(passwordEncoder.encode(bikeProviderPartner.getPassword()));
         PermenetAddressDto permenetAddressDto = bikeProviderPartnerDto.getPermenetAddressDto();
         Permanentaddress permanentaddress = mappingService.pojoToentity(permenetAddressDto, Permanentaddress.class);
         permanentaddress.setBikeProviderPartner(bikeProviderPartner);
         bikeProviderPartner.setPermanentaddress(permanentaddress);
+        bikeProviderPartner.setRoles(Collections.singletonList(RoleMaps.get("ROLE_BIKEPROVIDER_USER")));
+
         CurrentAddressDto currentAddressDto = bikeProviderPartnerDto.getCurrentAddressDto();
         CurrentAddress currentAddress = null;
         if (bikeProviderPartnerDto.getCurrentAddressSameToPermentAddress() == true &&
@@ -61,6 +67,9 @@ public class BikePartnerServiceImpl implements BikePartnerService {
             if (currentAddress != null) {
                 currentAddress.setBikeProviderPartnerForCurrentAddress(bikeProviderPartner);
                 bikeProviderPartner.setCurrentAddress(currentAddress);
+                bikeProviderPartner.setLocked(false);
+
+
             }
         } else if (currentAddressDto != null) {
             currentAddress = this.mappingService.pojoToentity(currentAddressDto, CurrentAddress.class);

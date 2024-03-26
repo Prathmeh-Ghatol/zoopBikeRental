@@ -17,6 +17,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +47,7 @@ public class ApplicationUserController {
     }
 
     @PutMapping(value = "/update/{email}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     ResponseEntity<ApplicationUserDto> update(@PathVariable("email") String email,
                                               @Valid @RequestBody ApplicationUserDto applicationUserDto) {
         ApplicationUserDto applicationUser = this.applicationUserService.update(email, applicationUserDto);
@@ -53,6 +55,7 @@ public class ApplicationUserController {
     }
 
     @DeleteMapping(value = "/delete/{email}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER') and hasRole (ROLE_ADMIN)")
     ResponseEntity<Map<String, Boolean>> delete(@PathVariable("email") String email) {
         Boolean deleteConfirmFlag = this.applicationUserService.deRegisterApplicationUser(email);
         Map<String, Boolean> responceMap = new HashMap<>();
@@ -61,18 +64,21 @@ public class ApplicationUserController {
     }
 
     @GetMapping(value = "/get/email/{email}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     ResponseEntity<ApplicationUserDto> get(@PathVariable("email") String email) {
         ApplicationUserDto applicationUser = this.applicationUserService.getApplicationUserByEmailorId(email, null);
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationUser);
     }
 
     @GetMapping(value = "/get/id/{uuid}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER') and hasRole('ROLE_ADMIN')")
     ResponseEntity<ApplicationUserDto> getById(@PathVariable("uuid") UUID uuid) {
         ApplicationUserDto applicationUser = this.applicationUserService.getApplicationUserByEmailorId(null, uuid);
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationUser);
     }
 
     @GetMapping(value = "/get/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     ResponseEntity<GenricPage<ApplicationUserDto>> getAllApplicationUser(
             @RequestParam(value = "pageNo", defaultValue = com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defualtApplicationPageNO, required = false) int PageNo,
             @RequestParam(value = "pageSize", defaultValue = com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.defaultApplicationPageSize, required = false) int PageSize) {
@@ -82,6 +88,7 @@ public class ApplicationUserController {
 
 
     @GetMapping(value = "/get/all/bookings/{userId}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<Set<BookingRecords>> getAllBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId) {
         Set<BookingRecords> allBookingOfuser = applicationUserService.getAllBookingOfuser(applicationUserId);
         return ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
@@ -89,6 +96,7 @@ public class ApplicationUserController {
     }
 
     @GetMapping(value = "/get/current/booking/{userId}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<Set<BookingRecords>> getCurrentBookingofApplicationUser(@PathVariable("userId") UUID applicationUserId) {
         Set<BookingRecords> allBookingOfuser = applicationUserService.getCurrentBookingOfuser(applicationUserId);
         return ResponseEntity.status(HttpStatus.OK).body(allBookingOfuser);
@@ -96,6 +104,7 @@ public class ApplicationUserController {
     }
 
     @PostMapping("/{userId}/image/upload")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<String> uploadImage(@PathVariable("userId") UUID userId, @RequestParam("file") MultipartFile file,
                                               @RequestParam("imageType") String imageTypeToUpload) throws IOException {
         try {
@@ -107,6 +116,7 @@ public class ApplicationUserController {
         }
     }
     @PutMapping("/{userId}/image/update/upload")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<String> updateImage(@PathVariable("userId") UUID userId, @RequestParam("file") MultipartFile file,
                                               @RequestParam("imageType") String imageTypeToUpload) throws IOException {
         try {
@@ -119,6 +129,7 @@ public class ApplicationUserController {
     }
 
     @GetMapping("{userId}/image/download/profile/{profile}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<byte[]> downloadProfile(
             @PathVariable("userId") UUID userId,
             @PathVariable("profile") String docType)
@@ -134,6 +145,7 @@ public class ApplicationUserController {
         }
     }
     @GetMapping("{userId}/image/download/Licence/{Licence}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<byte[]> downloadRtoLicence(
             @PathVariable("userId") UUID userId,
             @PathVariable("Licence") String docType)
@@ -149,6 +161,7 @@ public class ApplicationUserController {
         }
     }
     @GetMapping("{userId}/image/download/Adhar/{Adhar}")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<byte[]> downloadAdhar(
             @PathVariable("userId") UUID userId,
             @PathVariable("Adhar") String docType)
@@ -167,6 +180,8 @@ public class ApplicationUserController {
 
 
     @DeleteMapping("{userId}/image/delete/Licence")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
+
     public ResponseEntity<String> deleteLicence(@PathVariable("userId") UUID userId) {
         try {
             s3service.deleteProfileAndDocumentsOfApplicationUser(userId, "Rto_Licence");
@@ -177,6 +192,7 @@ public class ApplicationUserController {
         }
     }
     @DeleteMapping("{userId}/image/delete/Adhar")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<String> deleteAdhar(@PathVariable("userId") UUID userId) {
         try {
             s3service.deleteProfileAndDocumentsOfApplicationUser(userId, "Aadhar");
@@ -187,6 +203,7 @@ public class ApplicationUserController {
         }
     }
     @DeleteMapping("{userId}/image/delete/Profile")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<String> deleteProfile(@PathVariable("userId") UUID userId) {
         try {
             s3service.deleteProfileAndDocumentsOfApplicationUser(userId, "Profile");
@@ -198,6 +215,7 @@ public class ApplicationUserController {
     }
 
     @PutMapping("/{applicationUserId}/update")
+    @PreAuthorize("hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<String> updateDocument(
             @PathVariable UUID applicationUserId,
             @RequestParam("documentType") String documentType,

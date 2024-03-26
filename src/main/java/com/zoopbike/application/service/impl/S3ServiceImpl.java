@@ -245,7 +245,6 @@ public class S3ServiceImpl {
                 userId = applicationUser.getApplicationUserId();
                 fileName = applicationUser.getAdhar();
                 path = USER_IMAGES_PATH + userId + "/adhar/" + fileName;
-                System.out.println("path " +path);
                 s3Object = this.s3BucketConfig.amazonS3().getObject(bucketName, path);
         }
         S3ObjectInputStream stream = s3Object.getObjectContent();

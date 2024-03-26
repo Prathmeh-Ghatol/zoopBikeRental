@@ -14,12 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.RoleMaps;
 
 @Service
 public class ApplicationUserserviceImpl implements ApplicationUserService {
@@ -36,6 +39,8 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
     private BikeRepo bikeRepo;
     
     private BookingService bookingService;
+
+    //private PasswordEncoder passwordEncoder;
 
     private zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant;
     @Autowired
@@ -55,12 +60,13 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
         this.bikeRepo=bikeRepo;
         this.zoopBikeRentalApplicationConstant=zoopBikeRentalApplicationConstant;
         this.bookingService=bookingService;
+       // this.passwordEncoder=passwordEncoder;
     }
 
     @Override
     public ApplicationUserDto registerApplicationUser(ApplicationUserDto applicationUserDto) {
         ApplicationUser applicationUser = this.objectMappingService.pojoToentity(applicationUserDto, ApplicationUser.class);
-        System.out.println(applicationUser);
+
         PermenetAddressDto permenetAddressDto = applicationUserDto.getPermenetAddressDto();
         CurrentAddressDto currentAddressDto = applicationUserDto.getCurrentAddressDto();
         CurrentAddress currentAddress;
@@ -73,6 +79,9 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
             if (currentAddress != null) {
                 applicationUser.setCurrentAddress(currentAddress);
                 currentAddress.setApplicationUser(applicationUser);
+                applicationUser.setLocked(false);
+                applicationUser.setRoles(Collections.singletonList(RoleMaps.get("Application_user")));
+//                applicationUser.setPassword(passwordEncoder.encode(applicationUserDto.getPassword()));
 
 
                 permanentaddress.setApplicationUser(applicationUser);
@@ -88,7 +97,7 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
             applicationUser.setPermanentaddress(permanentaddress);
             applicationUser.setCurrentAddress(currentAddress);
         }
-
+        applicationUser.setRoles(Collections.singletonList(RoleMaps.get("Application_user")));
         ApplicationUser applicationUserReturn = this.applicationUserRepo.save(applicationUser);
         ApplicationUserDto applicationUserDto1 = this.objectMappingService.entityToPojo(applicationUserReturn, ApplicationUserDto.class);
         CurrentAddressDto currentAddressDTO = this.objectMappingService.entityToPojo(applicationUserReturn.getCurrentAddress(), CurrentAddressDto.class);
@@ -152,7 +161,6 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
                 PermenetAddressDto permanentaddressDto = this.objectMappingService.entityToPojo(applicationUser.getPermanentaddress(), PermenetAddressDto.class);
                 applicationUserDto.setCurrentAddressDto(currentAddressDto);
                 applicationUserDto.setPermenetAddressDto(permanentaddressDto);
-                System.out.println("******************comming from map");
                 return applicationUserDto;
 
             }
@@ -188,7 +196,6 @@ public class ApplicationUserserviceImpl implements ApplicationUserService {
         Pageable pageable= PageRequest.of(pageNo, pageSize);
         Page<ApplicationUser>page=this.applicationUserRepo.getAllapplicationUser(pageable);
         List<ApplicationUser>applicationUsers=page.getContent();
-        System.out.println(applicationUsers);
         List<ApplicationUserDto> allApplicationUserDto= applicationUsers.stream().map(applicationUser -> {
                 CurrentAddressDto currentAddressDto = objectMappingService.entityToPojo(applicationUser.getCurrentAddress(), CurrentAddressDto.class);
                 PermenetAddressDto permenetAddressDto = objectMappingService.entityToPojo(applicationUser.getPermanentaddress(), PermenetAddressDto.class);

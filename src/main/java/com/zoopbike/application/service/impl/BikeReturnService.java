@@ -56,7 +56,6 @@ public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUs
                 findById(applicationUserId).orElseThrow(() -> new ReviewException("Application User Not Found" + applicationUserId.toString(), "ApplicationUser"));
         Set<BookingRecords> bikeBoooking = applicationUserService.getCurrentBookingOfuser(applicationUserId);
         Boolean bookingFound=false;
-        System.out.println(bikeBoooking);
         BikeBooking booking = bikeBookingJpa.findById(bookingId).orElseThrow(() -> new BookingException("Booking is not avilable" +
                 bookingId.toString(), " Booking"));
         for(BookingRecords bookingRC:bikeBoooking){
@@ -65,17 +64,14 @@ public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUs
             }
         }
             BikeReturnBillingDto bikeReturnBillingDto = new BikeReturnBillingDto();
-        System.out.println(bookingFound);
         if (bookingFound && booking.getBooking_Cancelled().equals(false)) {
             List<Bike> bikeALl = booking.getBikesBookReg();
             Bike bike=bikeALl.get(0);
-            System.out.println(bikeALl);
             priceAfterFreeKm = bike.getAfterfreeDriveKmChargePerKm();
             priceTimeBooked = booking.getPricePaid();
             priceForDay = bike.getPricePerDay();
             if (bike.getCurrentMeterReading() < bikeReturnDetailsDto.getAfterReturnBikeMeterReading()) {
                 meterReadingDiff = bikeReturnDetailsDto.getAfterReturnBikeMeterReading() - bike.getCurrentMeterReading();
-                System.out.println(meterReadingDiff);
                 if (meterReadingDiff < 0) {
                     throw new BookingException("Meter Reading never will negtive ", "METER READING");
                 }
@@ -91,7 +87,6 @@ public BikeReturnBillingDto returnBikeBooking(UUID bookingId, UUID applicationUs
                 if (bike.getFreeDriveKm() < meterReadingDiff) {
                     Double payForKm=meterReadingDiff-bike.getFreeDriveKm();
                     priceNeedToPay = priceOnDay + payForKm * bike.getAfterfreeDriveKmChargePerKm();
-                System.out.println( " system" +priceNeedToPay);
                 }else {
                     priceNeedToPay = priceOnDay;
                 }

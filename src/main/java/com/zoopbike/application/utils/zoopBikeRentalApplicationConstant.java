@@ -4,6 +4,8 @@ import org.hibernate.grammars.hql.HqlParser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class zoopBikeRentalApplicationConstant {
@@ -21,4 +23,12 @@ public class zoopBikeRentalApplicationConstant {
     public final static Integer zeroHour=0;
     public final static Integer zeroDay=0;
 
+    public static Map<String,String>RoleMaps=new HashMap<>();
+    static {
+        RoleMaps.put("Application_user", "ROLE_APPLICATION_USER");
+        RoleMaps.put("BikeProvider_user", "ROLE_BIKEPROVIDER_USER");
+        RoleMaps.put("Admin_user", "ROLE_ADMIN");
+
+
+    }
 }

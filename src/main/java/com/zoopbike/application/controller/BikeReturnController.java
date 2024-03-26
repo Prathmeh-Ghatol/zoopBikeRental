@@ -7,6 +7,7 @@ import com.zoopbike.application.service.impl.BikeReturnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,6 +19,8 @@ public class BikeReturnController {
     @Autowired
     BikeReturnService bikeReturnService;
     @PostMapping(value = "/bookingId/{bookingId}/user/{applicationUserId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_APPLICATION_USER') ")
+
     public ResponseEntity<BikeReturnBillingDto> bikeReturn(@RequestBody BikeReturnDetailsDto bikeReturnDetailsDto,
                                                           @PathVariable("bookingId") UUID bookingId,
                                                           @PathVariable("applicationUserId") UUID applicationUserId){

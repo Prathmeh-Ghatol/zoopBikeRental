@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 import java.util.UUID;
 
+import static com.zoopbike.application.utils.zoopBikeRentalApplicationConstant.RoleMaps;
+
 @SpringBootApplication
 public class DemoApplication implements CommandLineRunner{
 
@@ -36,12 +38,9 @@ public class DemoApplication implements CommandLineRunner{
 	@Autowired
 	zoopBikeRentalApplicationConstant zoopBikeRentalApplicationConstant ;
 
-	@Autowired
-	BikeBookingJpa bikeBookingJpa;
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("*******************" + zoopBikeRentalApplicationConstant.getCurrentDateTime());
 //		List<List<BikeBooking>>allBooking =service.getBookedBikeStatus(UUID.fromString("7b9467a3-9010-4b52-9*.369090-1a6e1d92e0c5"));
 
 

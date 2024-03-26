@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.domain.Range;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "BIKE_PROVIDER")
-public class BikeProviderPartner {
+public class BikeProviderPartner implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID bikeProviderPartnerId;
@@ -43,15 +43,49 @@ public class BikeProviderPartner {
 
     private Boolean isAvilable;
 
-    @Column(nullable = false)
     private  String profileImage;
 
-    @Column(nullable = false)
     private String adhar;
 
-    @Column(nullable = false)
     private String drivingLicence;
 
+    @Column(name = "ROLES")
+    private List<String>roles;
 
+    @Column
+    private Boolean locked;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<SimpleGrantedAuthority>authoritySet = new HashSet<>();
+        for(String role:roles){
+            authoritySet.add(new SimpleGrantedAuthority(role));
+        }
+    return authoritySet;
+    }
+
+    @Override
+    public String getUsername() {
+        return email ;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return locked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

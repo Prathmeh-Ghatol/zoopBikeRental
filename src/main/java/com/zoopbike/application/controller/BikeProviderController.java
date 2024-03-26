@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,12 +28,12 @@ public class BikeProviderController {
     BikePartnerServiceImpl bikePartnerService;
     @PostMapping(value = "/register")
     public ResponseEntity<BikeProviderPartnerDto>register(@Valid @RequestBody  BikeProviderPartnerDto bikeProviderPattnerDto){
-    System.out.println(bikeProviderPattnerDto);
      BikeProviderPartnerDto dto=   bikePartnerService.register(bikeProviderPattnerDto);
      return ResponseEntity.status(HttpStatus.CREATED).body(dto);
 
     }
     @DeleteMapping(value = "/deregister/{Id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER')")
     public ResponseEntity<HashMap<Boolean,String>>deRegister(@PathVariable("Id") UUID id ){
         HashMap<Boolean,String>deleteObject=new HashMap<>();
         Boolean flag=this.bikePartnerService.deregister(id);
@@ -40,6 +41,7 @@ public class BikeProviderController {
         return ResponseEntity.status(HttpStatus.OK).body( deleteObject);
     }
     @GetMapping(value = "/get/email/{email}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER') hasRole('ROLE_APPLICATION_USER')")
     public  ResponseEntity<BikeProviderPartnerDto>findBikeProviderPartner(@PathVariable("email") String email){
        BikeProviderPartnerDto bikeProviderPartnerDto= this.bikePartnerService.
                getBikeProviderPartnerByEmailorVenderId(email, null);
@@ -47,6 +49,8 @@ public class BikeProviderController {
     }
 
     @PutMapping(value = "/update/email/{email}")
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER')")
     public  ResponseEntity<String>updateBikeProviderPartner(@PathVariable("email") String email, @RequestBody BikeProviderPartnerDto bikeProviderPartnerDto){
         this.bikePartnerService.update(email, bikeProviderPartnerDto);
         return ResponseEntity.status(HttpStatus.OK).body("updated");
@@ -57,6 +61,8 @@ public class BikeProviderController {
 //      return ResponseEntity.ok( this.bikePartnerService.getBookedBikeStatus(id));
 //    }
 @PostMapping("/{bikeProviderId}/image/upload")
+
+@PreAuthorize("hasRole('ROLE_BIKEPROVIDER_USER')")
 public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID bikeProviderId, @RequestParam("file") MultipartFile file,
                                           @RequestParam("imageType") String imageTypeToUpload) throws IOException {
     try {
@@ -68,6 +74,7 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
     }
 }
     @PutMapping("/{bikeProviderId}/image/update/upload")
+    @PreAuthorize("hasRole('ROLE_BIKEPROVIDER_USER')")
     public ResponseEntity<String> updateImage(@PathVariable("bikeProviderId") UUID bikeProviderId, @RequestParam("file") MultipartFile file,
                                               @RequestParam("imageType") String imageTypeToUpload) throws IOException {
         try {
@@ -80,6 +87,7 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
     }
 
     @GetMapping("{bikeUserId}/image/download/profile/{profile}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER') hasRole('ROLE_APPLICATION_USER')")
     public ResponseEntity<byte[]> downloadProfile(
             @PathVariable("bikeUserId") UUID bikeUserId,
             @PathVariable("profile") String docType)
@@ -95,6 +103,8 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
     }
     }
     @GetMapping("{bikeUserId}/image/download/Licence/{Licence}")
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER')")
     public ResponseEntity<byte[]> downloadRtoLicence(
             @PathVariable("bikeUserId") UUID userId,
             @PathVariable("Licence") String docType)
@@ -109,7 +119,9 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
     }
-    @GetMapping("{bikeUserId}/image/download/Adhar/{Adhar}")
+    @GetMapping(value = "{bikeUserId}/image/download/Adhar/{Adhar}")
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER')")
     public ResponseEntity<byte[]> downloadAdhar(
             @PathVariable("bikeUserId") UUID userId,
             @PathVariable("Adhar") String docType)
@@ -128,6 +140,8 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
 
 
     @DeleteMapping("{bikeUserId}/image/delete/Licence")
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER') ")
     public ResponseEntity<String> deleteLicence(@PathVariable("bikeUserId") UUID userId) {
         try {
             s3service.deleteProfileAndDocumentsOfBikeProvider(userId, "Rto_Licence");
@@ -138,6 +152,7 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
         }
     }
     @DeleteMapping("{bikeUserId}/image/delete/Adhar")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER') ")
     public ResponseEntity<String> deleteAdhar(@PathVariable("bikeUserId") UUID userId) {
         try {
             s3service.deleteProfileAndDocumentsOfBikeProvider(userId, "Aadhar");
@@ -148,6 +163,8 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
         }
     }
     @DeleteMapping("{bikeUserId}/image/delete/Profile")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER') ")
+
     public ResponseEntity<String> deleteProfile(@PathVariable("bikeUserId") UUID userId) {
         try {
             s3service.deleteProfileAndDocumentsOfBikeProvider(userId, "Profile");
@@ -159,6 +176,8 @@ public ResponseEntity<String> uploadImage(@PathVariable("bikeProviderId") UUID b
     }
 
     @PutMapping("/{bikeUserId}/update")
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasRole('ROLE_BIKEPROVIDER_USER') ")
     public ResponseEntity<String> updateDocument(
             @PathVariable UUID applicationUserId,
             @RequestParam("documentType") String documentType,

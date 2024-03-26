@@ -65,7 +65,6 @@ public class BikeSeImpl implements BikeService {
         bike.setBikeFreeFuel(bikeDto.getBikeFreeFuel());
         bike.setBikeType(bikeDto.getBikeType());
         Bike bikeSaved = this.bikeRepo.save(bike);
-        System.out.println(bikeSaved);
         cacheStore.bikesCache.put(bikeSaved.getBikeId(), bikeSaved);
         return this.objectMappingService.entityToPojo(bikeSaved, BikeReturnDto.class);
 
@@ -81,7 +80,6 @@ public class BikeSeImpl implements BikeService {
             bikeUpdatBike.setPucValidity(bikeDto.getPucValidity());
             bikeUpdatBike.setUnder_Maintenance(bikeDto.getUnder_Maintenance());
             bikeUpdatBike.setAfterfreeDriveKmChargePerKm(bikeDto.getAfterfreeDriveKmChargePerKm());
-            System.out.println(bike.get().getCurrentMeterReading());
 
             if(bike.get().getCurrentMeterReading()<=bikeDto.getCurrentMeterReading()){
 
